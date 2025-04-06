@@ -1,95 +1,124 @@
-import * as React from 'react';
-import { View } from 'react-native';
-import Animated, { FadeInUp, FadeOutDown, LayoutAnimationConfig } from 'react-native-reanimated';
-import { Info } from '~/lib/icons/Info';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { Button } from '~/components/ui/button';
+import { useRouter } from "expo-router";
+import { Plus, Settings } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card';
-import { Progress } from '~/components/ui/progress';
-import { Text } from '~/components/ui/text';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/components/ui/tooltip';
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import ItemCard from "~/components/ItemCard";
+import { ThemeToggle } from "~/components/ThemeToggle";
+import { Button } from "~/components/ui/button";
+import { Text } from "~/components/ui/text";
+import { getApiKey } from "~/services/storage";
+import { useStore } from "~/store";
 
-const GITHUB_AVATAR_URI =
-  'https://i.pinimg.com/originals/ef/a2/8d/efa28d18a04e7fa40ed49eeb0ab660db.jpg';
+export default function HomeScreen() {
+  const router = useRouter();
+  const items = useStore((state) => state.items);
+  const geminiConfig = useStore((state) => state.geminiConfig);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasApiKey, setHasApiKey] = useState(false);
 
-export default function Screen() {
-  const [progress, setProgress] = React.useState(78);
+  console.log("Home screen - geminiConfig:", geminiConfig ? "exists" : "null");
 
-  function updateProgressValue() {
-    setProgress(Math.floor(Math.random() * 100));
+  useEffect(() => {
+    const checkApiKey = async () => {
+      // First check if we have it in the store
+      if (geminiConfig && geminiConfig.apiKey) {
+        console.log("Home screen - Found API key in store");
+        setHasApiKey(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // Otherwise check secure storage
+      const apiKey = await getApiKey();
+      console.log(
+        "Home screen - API key from storage:",
+        apiKey ? "exists" : "null"
+      );
+      setHasApiKey(!!apiKey);
+      setIsLoading(false);
+    };
+
+    checkApiKey();
+  }, [geminiConfig]);
+
+  const handleAddItem = () => {
+    // Check both the store and the local state
+    const hasKey = hasApiKey || (geminiConfig && !!geminiConfig.apiKey);
+    console.log("handleAddItem - hasKey:", hasKey);
+
+    if (!hasKey) {
+      console.log("No API key found, redirecting to settings");
+      router.push("/settings");
+      return;
+    }
+
+    console.log("API key found, navigating to basic-camera");
+    router.push("/basic-camera");
+  };
+
+  const handleOpenSettings = () => {
+    router.push("/settings");
+  };
+
+  if (isLoading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
   }
+
   return (
-    <View className='flex-1 justify-center items-center gap-5 p-6 bg-secondary/30'>
-      <Card className='w-full max-w-sm p-6 rounded-2xl'>
-        <CardHeader className='items-center'>
-          <Avatar alt="Rick Sanchez's Avatar" className='w-24 h-24'>
-            <AvatarImage source={{ uri: GITHUB_AVATAR_URI }} />
-            <AvatarFallback>
-              <Text>RS</Text>
-            </AvatarFallback>
-          </Avatar>
-          <View className='p-3' />
-          <CardTitle className='pb-2 text-center'>Rick Sanchez</CardTitle>
-          <View className='flex-row'>
-            <CardDescription className='text-base font-semibold'>Scientist</CardDescription>
-            <Tooltip delayDuration={150}>
-              <TooltipTrigger className='px-2 pb-0.5 active:opacity-50'>
-                <Info size={14} strokeWidth={2.5} className='w-4 h-4 text-foreground/70' />
-              </TooltipTrigger>
-              <TooltipContent className='py-2 px-4 shadow'>
-                <Text className='native:text-lg'>Freelance</Text>
-              </TooltipContent>
-            </Tooltip>
+    <View className="flex-1 bg-background">
+      {/* Header */}
+      <View className="flex-row justify-between items-center p-4 border-b border-border">
+        <Text className="text-xl font-bold">Best Before</Text>
+        <View className="flex-row items-center">
+          <ThemeToggle />
+          <TouchableOpacity onPress={handleOpenSettings} className="ml-2">
+            <Settings className="text-foreground" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Content */}
+      <View className="flex-1 p-4">
+        {items.length === 0 ? (
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-lg text-muted-foreground mb-4">
+              No items yet
+            </Text>
+            <Button onPress={handleAddItem}>
+              <Plus className="mr-2 text-primary-foreground" size={18} />
+              <Text className="text-primary-foreground">Add Item</Text>
+            </Button>
           </View>
-        </CardHeader>
-        <CardContent>
-          <View className='flex-row justify-around gap-3'>
-            <View className='items-center'>
-              <Text className='text-sm text-muted-foreground'>Dimension</Text>
-              <Text className='text-xl font-semibold'>C-137</Text>
-            </View>
-            <View className='items-center'>
-              <Text className='text-sm text-muted-foreground'>Age</Text>
-              <Text className='text-xl font-semibold'>70</Text>
-            </View>
-            <View className='items-center'>
-              <Text className='text-sm text-muted-foreground'>Species</Text>
-              <Text className='text-xl font-semibold'>Human</Text>
-            </View>
-          </View>
-        </CardContent>
-        <CardFooter className='flex-col gap-3 pb-0'>
-          <View className='flex-row items-center overflow-hidden'>
-            <Text className='text-sm text-muted-foreground'>Productivity:</Text>
-            <LayoutAnimationConfig skipEntering>
-              <Animated.View
-                key={progress}
-                entering={FadeInUp}
-                exiting={FadeOutDown}
-                className='w-11 items-center'
-              >
-                <Text className='text-sm font-bold text-sky-600'>{progress}%</Text>
-              </Animated.View>
-            </LayoutAnimationConfig>
-          </View>
-          <Progress value={progress} className='h-2' indicatorClassName='bg-sky-600' />
-          <View />
-          <Button
-            variant='outline'
-            className='shadow shadow-foreground/5'
-            onPress={updateProgressValue}
+        ) : (
+          <FlatList
+            data={items}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <ItemCard item={item} />}
+            contentContainerStyle={{ paddingBottom: 80 }}
+          />
+        )}
+      </View>
+
+      {/* Floating Action Button */}
+      {items.length > 0 && (
+        <View className="absolute bottom-6 right-6">
+          <TouchableOpacity
+            onPress={handleAddItem}
+            className="w-14 h-14 rounded-full bg-primary justify-center items-center shadow-lg"
           >
-            <Text>Update</Text>
-          </Button>
-        </CardFooter>
-      </Card>
+            <Plus size={24} className="text-primary-foreground" />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
