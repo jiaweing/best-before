@@ -23,7 +23,7 @@ export interface GeminiConfig {
   apiKey: string;
 }
 
-export type PhotoType = 'product' | 'expiry';
+export type PhotoType = "product" | "expiry";
 
 export interface AppState {
   items: Item[];
@@ -31,5 +31,5 @@ export interface AppState {
   addItem: (item: ItemFormData) => void;
   updateItem: (id: string, item: Partial<ItemFormData>) => void;
   deleteItem: (id: string) => void;
-  setGeminiConfig: (config: GeminiConfig) => void;
+  setGeminiConfig: (config: GeminiConfig | null) => void;
 }

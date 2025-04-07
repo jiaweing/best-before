@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-import { Plus, Settings } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -11,6 +10,8 @@ import ItemCard from "~/components/ItemCard";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
+import { Plus } from "~/lib/icons/Plus";
+import { Settings } from "~/lib/icons/Settings";
 import { getApiKey } from "~/services/storage";
 import { useStore } from "~/store";
 
@@ -93,7 +94,10 @@ export default function HomeScreen() {
             <Text className="text-lg text-muted-foreground mb-4">
               No items yet
             </Text>
-            <Button onPress={handleAddItem}>
+            <Button
+              onPress={handleAddItem}
+              className="flex flex-row items-center"
+            >
               <Plus className="mr-2 text-primary-foreground" size={18} />
               <Text className="text-primary-foreground">Add Item</Text>
             </Button>

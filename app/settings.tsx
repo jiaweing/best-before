@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-import { ArrowLeft, Info, Key } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -10,6 +9,9 @@ import {
 } from "react-native";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { Text } from "~/components/ui/text";
+import { ArrowLeft } from "~/lib/icons/ArrowLeft";
+import { Info } from "~/lib/icons/Info";
+import { Key } from "~/lib/icons/Key";
 import { deleteApiKey, getApiKey, saveApiKey } from "~/services/storage";
 import { useStore } from "~/store";
 
