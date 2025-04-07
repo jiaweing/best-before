@@ -77,7 +77,7 @@ export default function CameraView({
 
   return (
     <View className="flex-1 bg-black">
-      <Camera ref={cameraRef} type={cameraType} className="flex-1" ratio="16:9">
+      <Camera ref={cameraRef} type={cameraType} className="flex-1" ratio="9:16">
         <View className="flex-1 bg-transparent">
           {/* Header */}
           <View className="flex-row justify-between items-center p-4">

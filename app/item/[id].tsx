@@ -163,7 +163,7 @@ export default function ItemDetailScreen() {
       {/* Content */}
       <ScrollView className="flex-1">
         {/* Image */}
-        <View className="w-full aspect-[16/9] overflow-hidden">
+        <View className="w-full aspect-[9/16] overflow-hidden">
           <Image
             source={{ uri: item.imageUri }}
             className="w-full h-full"

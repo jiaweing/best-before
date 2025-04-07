@@ -278,7 +278,7 @@ export default function CameraAddScreen() {
           ref={cameraRef}
           type={cameraType}
           className="flex-1"
-          ratio="16:9"
+          ratio="9:16"
         >
           <View className="flex-1 bg-transparent">
             {/* Header */}
@@ -356,7 +356,7 @@ export default function CameraAddScreen() {
 
         {/* Image */}
         <View className="flex-1 justify-center items-center p-4">
-          <View className="w-full aspect-[16/9] rounded-lg overflow-hidden">
+          <View className="w-full aspect-[9/16] rounded-lg overflow-hidden">
             <Image
               source={{ uri: productPhotoUri }}
               className="w-full h-full"
@@ -390,7 +390,7 @@ export default function CameraAddScreen() {
           ref={cameraRef}
           type={cameraType}
           className="flex-1"
-          ratio="16:9"
+          ratio="9:16"
         >
           <View className="flex-1 bg-transparent">
             {/* Header */}
@@ -470,7 +470,7 @@ export default function CameraAddScreen() {
 
         {/* Image */}
         <View className="flex-1 justify-center items-center p-4">
-          <View className="w-full aspect-[16/9] rounded-lg overflow-hidden">
+          <View className="w-full aspect-[9/16] rounded-lg overflow-hidden">
             <Image
               source={{ uri: expiryPhotoUri }}
               className="w-full h-full"
@@ -517,7 +517,7 @@ export default function CameraAddScreen() {
         <View className="flex-1 p-4">
           {/* Product Image */}
           <View className="items-center mb-4">
-            <View className="w-40 aspect-[16/9] rounded-lg overflow-hidden">
+            <View className="w-40 aspect-[9/16] rounded-lg overflow-hidden">
               <Image
                 source={{ uri: productPhotoUri }}
                 className="w-full h-full"

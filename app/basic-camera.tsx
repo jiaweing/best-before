@@ -72,7 +72,7 @@ export default function BasicCameraScreen() {
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
-        aspect: [16, 9],
+        aspect: [9, 16],
         quality: 0.7,
       });
 
@@ -305,7 +305,7 @@ export default function BasicCameraScreen() {
         <View className="flex-1 justify-center items-center p-4">
           {productPhotoUri ? (
             <View className="items-center">
-              <View className="w-64 aspect-[16/9] rounded-lg mb-4 overflow-hidden">
+              <View className="w-64 aspect-[9/16] rounded-lg mb-4 overflow-hidden">
                 <Image
                   source={{ uri: productPhotoUri }}
                   className="w-full h-full"
@@ -330,7 +330,7 @@ export default function BasicCameraScreen() {
             </View>
           ) : (
             <View className="items-center">
-              <View className="w-64 aspect-[16/9] bg-muted rounded-lg mb-4 justify-center items-center">
+              <View className="w-64 aspect-[9/16] bg-muted rounded-lg mb-4 justify-center items-center">
                 <Camera size={48} className="text-muted-foreground" />
               </View>
               <Text className="text-center mb-4">
@@ -367,7 +367,7 @@ export default function BasicCameraScreen() {
         <View className="flex-1 justify-center items-center p-4">
           {expiryPhotoUri ? (
             <View className="items-center">
-              <View className="w-64 aspect-[16/9] rounded-lg mb-4 overflow-hidden">
+              <View className="w-64 aspect-[9/16] rounded-lg mb-4 overflow-hidden">
                 <Image
                   source={{ uri: expiryPhotoUri }}
                   className="w-full h-full"
@@ -392,7 +392,7 @@ export default function BasicCameraScreen() {
             </View>
           ) : (
             <View className="items-center">
-              <View className="w-64 aspect-[16/9] bg-muted rounded-lg mb-4 justify-center items-center">
+              <View className="w-64 aspect-[9/16] bg-muted rounded-lg mb-4 justify-center items-center">
                 <Calendar size={48} className="text-muted-foreground" />
               </View>
               <Text className="text-center mb-4">
@@ -429,7 +429,7 @@ export default function BasicCameraScreen() {
         <ScrollView className="flex-1 p-4">
           {/* Product Image */}
           <View className="items-center mb-4">
-            <View className="w-40 aspect-[16/9] rounded-lg overflow-hidden">
+            <View className="w-40 aspect-[9/16] rounded-lg overflow-hidden">
               <Image
                 source={{ uri: productPhotoUri || "" }}
                 className="w-full h-full"
