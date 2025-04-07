@@ -2,7 +2,6 @@ import { format, parseISO } from "date-fns";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Calendar, Camera } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,6 +15,9 @@ import {
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
+import { ArrowLeft } from "~/lib/icons/ArrowLeft";
+import { Calendar } from "~/lib/icons/Calendar";
+import { Camera } from "~/lib/icons/Camera";
 import {
   analyzeProductImage,
   extractExpiryDate,

@@ -1,6 +1,5 @@
 import * as ImageManipulator from "expo-image-manipulator";
 import { useRouter } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import CameraView from "~/components/CameraView";
@@ -9,6 +8,7 @@ import ItemForm from "~/components/ItemForm";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
+import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import {
   analyzeProductImage,
   extractExpiryDate,

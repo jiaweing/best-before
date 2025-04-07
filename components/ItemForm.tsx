@@ -1,9 +1,10 @@
 import { format, parseISO } from "date-fns";
-import { Calendar, Camera as CameraIcon } from "lucide-react-native";
 import React, { useState } from "react";
 import { Image, ScrollView, TextInput, View } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
+import { Calendar } from "~/lib/icons/Calendar";
+import { Camera as CameraIcon } from "~/lib/icons/Camera";
 import { ItemFormData } from "~/types";
 // Using a simpler approach for date input
 

@@ -1,6 +1,5 @@
 import { format, parseISO } from "date-fns";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Calendar } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   Alert,
@@ -11,6 +10,8 @@ import {
 } from "react-native";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { Text } from "~/components/ui/text";
+import { ArrowLeft } from "~/lib/icons/ArrowLeft";
+import { Calendar } from "~/lib/icons/Calendar";
 import { useStore } from "~/store";
 
 export default function SimpleAddScreen() {

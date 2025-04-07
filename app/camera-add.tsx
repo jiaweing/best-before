@@ -1,7 +1,6 @@
 import { Camera } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import { useRouter } from "expo-router";
-import { ArrowLeft, Check, RotateCcw, X } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -13,6 +12,10 @@ import {
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
+import { ArrowLeft } from "~/lib/icons/ArrowLeft";
+import { Check } from "~/lib/icons/Check";
+import { RotateCcw } from "~/lib/icons/RotateCcw";
+import { X } from "~/lib/icons/X";
 import {
   analyzeProductImage,
   extractExpiryDate,
