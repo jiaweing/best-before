@@ -356,11 +356,13 @@ export default function CameraAddScreen() {
 
         {/* Image */}
         <View className="flex-1 justify-center items-center p-4">
-          <Image
-            source={{ uri: productPhotoUri }}
-            className="w-full h-full rounded-lg"
-            resizeMode="contain"
-          />
+          <View className="w-full aspect-[16/9] rounded-lg overflow-hidden">
+            <Image
+              source={{ uri: productPhotoUri }}
+              className="w-full h-full"
+              resizeMode="cover"
+            />
+          </View>
         </View>
 
         {/* Footer */}
@@ -468,11 +470,13 @@ export default function CameraAddScreen() {
 
         {/* Image */}
         <View className="flex-1 justify-center items-center p-4">
-          <Image
-            source={{ uri: expiryPhotoUri }}
-            className="w-full h-full rounded-lg"
-            resizeMode="contain"
-          />
+          <View className="w-full aspect-[16/9] rounded-lg overflow-hidden">
+            <Image
+              source={{ uri: expiryPhotoUri }}
+              className="w-full h-full"
+              resizeMode="cover"
+            />
+          </View>
         </View>
 
         {/* Footer */}
@@ -513,11 +517,13 @@ export default function CameraAddScreen() {
         <View className="flex-1 p-4">
           {/* Product Image */}
           <View className="items-center mb-4">
-            <Image
-              source={{ uri: productPhotoUri }}
-              className="w-40 h-40 rounded-lg"
-              resizeMode="cover"
-            />
+            <View className="w-40 aspect-[16/9] rounded-lg overflow-hidden">
+              <Image
+                source={{ uri: productPhotoUri }}
+                className="w-full h-full"
+                resizeMode="cover"
+              />
+            </View>
           </View>
 
           {/* Details */}

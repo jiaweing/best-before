@@ -43,11 +43,13 @@ export default function ImagePreview({
 
       {/* Image */}
       <View className="flex-1 justify-center items-center p-4">
-        <Image
-          source={{ uri: imageUri }}
-          className="w-full h-full rounded-lg"
-          resizeMode="contain"
-        />
+        <View className="w-full aspect-[16/9] rounded-lg overflow-hidden">
+          <Image
+            source={{ uri: imageUri }}
+            className="w-full h-full"
+            resizeMode="cover"
+          />
+        </View>
       </View>
 
       {/* Footer */}

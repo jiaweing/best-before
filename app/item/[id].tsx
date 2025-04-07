@@ -163,11 +163,13 @@ export default function ItemDetailScreen() {
       {/* Content */}
       <ScrollView className="flex-1">
         {/* Image */}
-        <Image
-          source={{ uri: item.imageUri }}
-          className="w-full h-64"
-          resizeMode="cover"
-        />
+        <View className="w-full aspect-[16/9] overflow-hidden">
+          <Image
+            source={{ uri: item.imageUri }}
+            className="w-full h-full"
+            resizeMode="cover"
+          />
+        </View>
 
         {/* Expiry Status */}
         <View
