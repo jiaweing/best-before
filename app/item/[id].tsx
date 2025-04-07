@@ -1,6 +1,5 @@
 import { differenceInDays, format, parseISO } from "date-fns";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Calendar, Edit, Trash2 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -13,6 +12,10 @@ import ItemForm from "~/components/ItemForm";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
+import { ArrowLeft } from "~/lib/icons/ArrowLeft";
+import { Calendar } from "~/lib/icons/Calendar";
+import { Edit } from "~/lib/icons/Edit";
+import { Trash2 } from "~/lib/icons/Trash2";
 import { useStore } from "~/store";
 import { ItemFormData } from "~/types";
 
@@ -213,13 +216,16 @@ export default function ItemDetailScreen() {
       <View className="p-4 flex-row border-t border-border">
         <Button
           variant="outline"
-          className="flex-1 mr-2"
+          className="flex-1 mr-2 flex-row items-center"
           onPress={handleDelete}
         >
           <Trash2 size={18} className="text-destructive mr-2" />
           <Text className="text-destructive">Delete</Text>
         </Button>
-        <Button className="flex-1 ml-2" onPress={handleEdit}>
+        <Button
+          className="flex-1 ml-2 flex-row items-center"
+          onPress={handleEdit}
+        >
           <Edit size={18} className="text-primary-foreground mr-2" />
           <Text className="text-primary-foreground">Edit</Text>
         </Button>
