@@ -1,12 +1,12 @@
-import { differenceInDays, parseISO } from "date-fns";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
   View,
 } from "react-native";
+import { parseISO, differenceInDays } from "date-fns";
 import ItemCard from "~/components/ItemCard";
 import { ThemeToggle } from "~/components/ThemeToggle";
 import { Button } from "~/components/ui/button";
@@ -15,6 +15,7 @@ import { Plus } from "~/lib/icons/Plus";
 import { Settings } from "~/lib/icons/Settings";
 import { getApiKey } from "~/services/storage";
 import { useStore } from "~/store";
+import { Item } from "~/types";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -28,16 +29,10 @@ export default function HomeScreen() {
   // Sort items by expiry date (soonest to furthest)
   const sortedItems = useMemo(() => {
     if (!items.length) return [];
-
+    
     return [...items].sort((a, b) => {
-      const daysUntilExpiryA = differenceInDays(
-        parseISO(a.expiryDate),
-        new Date()
-      );
-      const daysUntilExpiryB = differenceInDays(
-        parseISO(b.expiryDate),
-        new Date()
-      );
+      const daysUntilExpiryA = differenceInDays(parseISO(a.expiryDate), new Date());
+      const daysUntilExpiryB = differenceInDays(parseISO(b.expiryDate), new Date());
       return daysUntilExpiryA - daysUntilExpiryB;
     });
   }, [items]);
