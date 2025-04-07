@@ -162,14 +162,14 @@ export default function ItemForm({
         {/* Buttons */}
         <View className="flex-row">
           <Button variant="outline" onPress={onCancel} className="flex-1 mr-2">
-            Cancel
+            <Text>Cancel</Text>
           </Button>
           <Button
             onPress={handleSubmit}
             className="flex-1 ml-2"
             disabled={isLoading}
           >
-            {isLoading ? "Saving..." : "Save"}
+            <Text>{isLoading ? "Saving..." : "Save"}</Text>
           </Button>
         </View>
       </View>

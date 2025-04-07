@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
-import { Text } from '~/components/ui/text';
-import { Button } from '~/components/ui/button';
-import { PhotoType } from '~/types';
-import { X, Camera as CameraIcon, RotateCcw } from 'lucide-react-native';
+import { Camera } from "expo-camera";
+import { RotateCcw, X } from "lucide-react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { Button } from "~/components/ui/button";
+import { Text } from "~/components/ui/text";
+import { PhotoType } from "~/types";
 
 interface CameraViewProps {
   onCapture: (uri: string) => void;
@@ -12,7 +12,11 @@ interface CameraViewProps {
   photoType: PhotoType;
 }
 
-export default function CameraView({ onCapture, onCancel, photoType }: CameraViewProps) {
+export default function CameraView({
+  onCapture,
+  onCancel,
+  photoType,
+}: CameraViewProps) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [cameraType, setCameraType] = useState(CameraType.back);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -21,7 +25,7 @@ export default function CameraView({ onCapture, onCancel, photoType }: CameraVie
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
+      setHasPermission(status === "granted");
     })();
   }, []);
 
@@ -36,7 +40,7 @@ export default function CameraView({ onCapture, onCancel, photoType }: CameraVie
         });
         onCapture(photo.uri);
       } catch (error) {
-        console.error('Error taking picture:', error);
+        console.error("Error taking picture:", error);
       } finally {
         setIsCapturing(false);
       }
@@ -44,7 +48,7 @@ export default function CameraView({ onCapture, onCancel, photoType }: CameraVie
   };
 
   const toggleCameraType = () => {
-    setCameraType(current => 
+    setCameraType((current) =>
       current === CameraType.back ? CameraType.front : CameraType.back
     );
   };
@@ -61,48 +65,48 @@ export default function CameraView({ onCapture, onCancel, photoType }: CameraVie
     return (
       <View className="flex-1 justify-center items-center p-4 bg-background">
         <Text className="text-center mb-4">
-          We need camera access to take pictures of your products and expiry dates.
+          We need camera access to take pictures of your products and expiry
+          dates.
         </Text>
-        <Button onPress={onCancel}>Go Back</Button>
+        <Button onPress={onCancel}>
+          <Text>Go Back</Text>
+        </Button>
       </View>
     );
   }
 
   return (
     <View className="flex-1 bg-black">
-      <Camera
-        ref={cameraRef}
-        type={cameraType}
-        className="flex-1"
-        ratio="16:9"
-      >
+      <Camera ref={cameraRef} type={cameraType} className="flex-1" ratio="16:9">
         <View className="flex-1 bg-transparent">
           {/* Header */}
           <View className="flex-row justify-between items-center p-4">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={onCancel}
               className="w-10 h-10 rounded-full bg-black/50 justify-center items-center"
             >
               <X size={24} color="white" />
             </TouchableOpacity>
-            
+
             <View className="bg-black/50 px-4 py-2 rounded-full">
               <Text className="text-white font-medium">
-                {photoType === 'product' ? 'Product Photo' : 'Expiry Date Photo'}
+                {photoType === "product"
+                  ? "Product Photo"
+                  : "Expiry Date Photo"}
               </Text>
             </View>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               onPress={toggleCameraType}
               className="w-10 h-10 rounded-full bg-black/50 justify-center items-center"
             >
               <RotateCcw size={20} color="white" />
             </TouchableOpacity>
           </View>
-          
+
           {/* Instructions */}
           <View className="flex-1 justify-center items-center">
-            {photoType === 'product' ? (
+            {photoType === "product" ? (
               <View className="bg-black/50 p-4 rounded-lg m-4">
                 <Text className="text-white text-center">
                   Take a clear photo of the product
@@ -116,7 +120,7 @@ export default function CameraView({ onCapture, onCancel, photoType }: CameraVie
               </View>
             )}
           </View>
-          
+
           {/* Footer */}
           <View className="p-8 justify-center items-center">
             <TouchableOpacity

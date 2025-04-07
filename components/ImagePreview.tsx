@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
-import { Text } from '~/components/ui/text';
-import { Button } from '~/components/ui/button';
-import { X, Check } from 'lucide-react-native';
-import { PhotoType } from '~/types';
+import { Check, X } from "lucide-react-native";
+import React from "react";
+import { Image, TouchableOpacity, View } from "react-native";
+import { Button } from "~/components/ui/button";
+import { Text } from "~/components/ui/text";
+import { PhotoType } from "~/types";
 
 interface ImagePreviewProps {
   imageUri: string;
@@ -12,58 +12,51 @@ interface ImagePreviewProps {
   photoType: PhotoType;
 }
 
-export default function ImagePreview({ 
-  imageUri, 
-  onAccept, 
+export default function ImagePreview({
+  imageUri,
+  onAccept,
   onRetake,
-  photoType
+  photoType,
 }: ImagePreviewProps) {
   return (
     <View className="flex-1 bg-background">
       {/* Header */}
       <View className="flex-row justify-between items-center p-4">
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={onRetake}
           className="w-10 h-10 rounded-full bg-muted justify-center items-center"
         >
           <X size={24} className="text-foreground" />
         </TouchableOpacity>
-        
+
         <Text className="font-medium text-lg">
-          {photoType === 'product' ? 'Product Photo' : 'Expiry Date Photo'}
+          {photoType === "product" ? "Product Photo" : "Expiry Date Photo"}
         </Text>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           onPress={onAccept}
           className="w-10 h-10 rounded-full bg-primary justify-center items-center"
         >
           <Check size={24} className="text-primary-foreground" />
         </TouchableOpacity>
       </View>
-      
+
       {/* Image */}
       <View className="flex-1 justify-center items-center p-4">
-        <Image 
-          source={{ uri: imageUri }} 
+        <Image
+          source={{ uri: imageUri }}
           className="w-full h-full rounded-lg"
           resizeMode="contain"
         />
       </View>
-      
+
       {/* Footer */}
       <View className="p-4 flex-row justify-between">
-        <Button 
-          variant="outline" 
-          onPress={onRetake}
-          className="flex-1 mr-2"
-        >
-          Retake
+        <Button variant="outline" onPress={onRetake} className="flex-1 mr-2">
+          <Text>Retake</Text>
         </Button>
-        <Button 
-          onPress={onAccept}
-          className="flex-1 ml-2"
-        >
-          Use Photo
+        <Button onPress={onAccept} className="flex-1 ml-2">
+          <Text>Use Photo</Text>
         </Button>
       </View>
     </View>

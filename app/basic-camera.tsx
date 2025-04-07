@@ -287,7 +287,7 @@ export default function BasicCameraScreen() {
   // Product photo step
   if (step === "product") {
     return (
-      <View className="flex-1 bg-background">
+      <View className="flex-1 bg-background pt-10">
         {/* Header */}
         <View className="flex-row items-center p-4 border-b border-border">
           <TouchableOpacity

@@ -119,7 +119,7 @@ export default function ItemDetailScreen() {
 
   if (isEditing) {
     return (
-      <View className="flex-1 bg-background">
+      <View className="flex-1 bg-background pt-10">
         {/* Header */}
         <View className="flex-row items-center p-4 border-b border-border">
           <Button variant="ghost" className="p-2 mr-2" onPress={handleBack}>
@@ -147,7 +147,7 @@ export default function ItemDetailScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background pt-10">
       {/* Header */}
       <View className="flex-row items-center p-4 border-b border-border">
         <Button variant="ghost" className="p-2 mr-2" onPress={handleBack}>

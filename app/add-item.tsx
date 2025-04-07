@@ -239,7 +239,9 @@ export default function AddItemScreen() {
         <Text className="text-center mb-4">
           You need to set up your Gemini API key to use this feature.
         </Text>
-        <Button onPress={() => router.push("/settings")}>Go to Settings</Button>
+        <Button onPress={() => router.push("/settings")}>
+          <Text>Go to Settings</Text>
+        </Button>
       </View>
     );
   }
