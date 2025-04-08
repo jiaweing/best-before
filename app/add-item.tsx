@@ -65,23 +65,36 @@ export default function AddItemScreen() {
     if (step === "expiry-photo" && productPhotoUri) {
       setStep("product-photo");
     } else if (step === "confirm") {
-      setStep("expiry-photo");
+      // If we have an expiry photo, go back to that step
+      // Otherwise go back to product photo (we skipped the expiry photo step)
+      if (expiryPhotoUri) {
+        setStep("expiry-photo");
+      } else {
+        setStep("product-photo");
+      }
     } else {
       router.back();
     }
   };
 
   const handleProductPhotoCapture = (uri: string) => {
+    console.log("DEBUGGING - handleProductPhotoCapture called with URI:", uri);
     setProductPhotoUri(uri);
-    processProductPhoto(uri);
+
+    // We'll handle the processing in the ImagePreview component's onAccept callback
+    // This ensures we don't process the photo twice
   };
 
   const handleExpiryPhotoCapture = (uri: string) => {
+    console.log("DEBUGGING - handleExpiryPhotoCapture called with URI:", uri);
     setExpiryPhotoUri(uri);
-    processExpiryPhoto(uri);
+
+    // We'll handle the processing in the ImagePreview component's onAccept callback
+    // This ensures we don't process the photo twice
   };
 
   const processProductPhoto = async (uri: string) => {
+    console.log("DEBUGGING - processProductPhoto called with URI:", uri);
     // Get API key from either local state or store
     const key = apiKey || (geminiConfig && geminiConfig.apiKey);
     console.log("processProductPhoto - key available:", !!key);
@@ -111,15 +124,109 @@ export default function AddItemScreen() {
         "Using API key for product analysis:",
         activeKey ? "Key available" : "No key"
       );
+
+      if (!activeKey) {
+        throw new Error("API key not available");
+      }
+
       const productData = await analyzeProductImage(activeKey, base64);
 
-      setFormData((prev) => ({
-        ...prev,
-        ...productData,
-        imageUri: uri,
-      }));
+      console.log(
+        "Product data received:",
+        JSON.stringify(productData, null, 2)
+      );
 
-      setStep("expiry-photo");
+      console.log(
+        "Checking for expiry date in product data:",
+        productData.expiryDate ? "FOUND" : "NOT FOUND"
+      );
+
+      // Add more detailed debugging
+      console.log(
+        "DEBUGGING - productData:",
+        JSON.stringify(productData, null, 2)
+      );
+      console.log("DEBUGGING - expiryDate value:", productData.expiryDate);
+      console.log(
+        "DEBUGGING - expiryDate type:",
+        typeof productData.expiryDate
+      );
+      console.log(
+        "DEBUGGING - expiryDate length:",
+        productData.expiryDate ? productData.expiryDate.length : "N/A"
+      );
+      console.log(
+        "DEBUGGING - expiryDate trimmed length:",
+        productData.expiryDate ? productData.expiryDate.trim().length : "N/A"
+      );
+      console.log(
+        "DEBUGGING - condition result:",
+        !!(productData.expiryDate && productData.expiryDate.trim() !== "")
+      );
+
+      // Force the expiry date check to be more explicit
+      const hasValidExpiryDate =
+        typeof productData.expiryDate === "string" &&
+        productData.expiryDate.trim().length > 0 &&
+        productData.expiryDate.includes("-"); // Basic format check
+
+      console.log("DEBUGGING - hasValidExpiryDate:", hasValidExpiryDate);
+
+      if (hasValidExpiryDate) {
+        console.log(
+          "Expiry date found in product image, skipping to confirm:",
+          productData.expiryDate
+        );
+
+        // Create the updated data object first
+        const updatedData = {
+          ...productData,
+          imageUri: uri,
+        };
+
+        console.log(
+          "Updated form data with expiry date:",
+          JSON.stringify(updatedData, null, 2)
+        );
+
+        // Update form data and then set step in a more direct way
+        setFormData(updatedData);
+
+        // Force the step change immediately without using state update
+        console.log("DEBUGGING - Setting step to confirm IMMEDIATELY");
+        // Use a more direct approach to force the step change
+        setTimeout(() => {
+          console.log("DEBUGGING - FORCING step to confirm");
+          setStep("confirm");
+        }, 0);
+      } else {
+        // No expiry date found, update form data and proceed to expiry photo step
+        console.log(
+          "No expiry date found in product image, requesting second photo"
+        );
+
+        // Create the updated data object first
+        const updatedData = {
+          ...productData,
+          imageUri: uri,
+        };
+
+        console.log(
+          "Updated form data without expiry date:",
+          JSON.stringify(updatedData, null, 2)
+        );
+
+        // Update form data and then set step
+        setFormData(updatedData);
+
+        // Force the step change immediately without using state update
+        console.log("DEBUGGING - Setting step to expiry-photo IMMEDIATELY");
+        // Use a more direct approach to force the step change
+        setTimeout(() => {
+          console.log("DEBUGGING - FORCING step to expiry-photo");
+          setStep("expiry-photo");
+        }, 0);
+      }
     } catch (error) {
       console.error("Error processing product photo:", error);
       Alert.alert(
@@ -133,11 +240,69 @@ export default function AddItemScreen() {
           {
             text: "Continue",
             onPress: () => {
-              setFormData((prev) => ({
-                ...prev,
+              // Update form data with image URI and check for expiry date
+              const updatedData = {
+                ...formData,
                 imageUri: uri,
-              }));
-              setStep("expiry-photo");
+              };
+
+              // Add more debugging
+              console.log(
+                "DEBUGGING ERROR HANDLER - updatedData:",
+                JSON.stringify(updatedData, null, 2)
+              );
+              console.log(
+                "DEBUGGING ERROR HANDLER - expiryDate value:",
+                updatedData.expiryDate
+              );
+
+              // Force the expiry date check to be more explicit
+              const hasValidExpiryDate =
+                typeof updatedData.expiryDate === "string" &&
+                updatedData.expiryDate.trim().length > 0 &&
+                updatedData.expiryDate.includes("-"); // Basic format check
+
+              console.log(
+                "DEBUGGING ERROR HANDLER - hasValidExpiryDate:",
+                hasValidExpiryDate
+              );
+
+              // Set the form data
+              setFormData(updatedData);
+
+              // Check if we already have an expiry date
+              if (hasValidExpiryDate) {
+                console.log(
+                  "Using existing expiry date, skipping to confirm:",
+                  updatedData.expiryDate
+                );
+                // Force the step change immediately without using state update
+                console.log(
+                  "DEBUGGING ERROR HANDLER - Setting step to confirm IMMEDIATELY"
+                );
+                // Use a more direct approach to force the step change
+                setTimeout(() => {
+                  console.log(
+                    "DEBUGGING ERROR HANDLER - FORCING step to confirm"
+                  );
+                  setStep("confirm");
+                }, 0);
+              } else {
+                console.log(
+                  "No existing expiry date, going to expiry photo step"
+                );
+                // Force the step change immediately without using state update
+                console.log(
+                  "DEBUGGING ERROR HANDLER - Setting step to expiry-photo IMMEDIATELY"
+                );
+                // Use a more direct approach to force the step change
+                setTimeout(() => {
+                  console.log(
+                    "DEBUGGING ERROR HANDLER - FORCING step to expiry-photo"
+                  );
+                  setStep("expiry-photo");
+                }, 0);
+              }
             },
           },
         ]
@@ -148,6 +313,7 @@ export default function AddItemScreen() {
   };
 
   const processExpiryPhoto = async (uri: string) => {
+    console.log("DEBUGGING - processExpiryPhoto called with URI:", uri);
     // Get API key from either local state or store
     const key = apiKey || (geminiConfig && geminiConfig.apiKey);
     console.log("processExpiryPhoto - key available:", !!key);
@@ -177,6 +343,11 @@ export default function AddItemScreen() {
         "Using API key for expiry date extraction:",
         activeKey ? "Key available" : "No key"
       );
+
+      if (!activeKey) {
+        throw new Error("API key not available");
+      }
+
       const dateData = await extractExpiryDate(activeKey, base64);
 
       setFormData((prev) => ({
@@ -268,10 +439,14 @@ export default function AddItemScreen() {
       );
     }
 
+    console.log("DEBUGGING - Rendering ImagePreview for product photo");
     return (
       <ImagePreview
         imageUri={productPhotoUri}
-        onAccept={() => processProductPhoto(productPhotoUri)}
+        onAccept={() => {
+          console.log("DEBUGGING - onAccept callback for product photo");
+          processProductPhoto(productPhotoUri);
+        }}
         onRetake={handleRetakeProductPhoto}
         photoType="product"
       />
@@ -290,10 +465,14 @@ export default function AddItemScreen() {
       );
     }
 
+    console.log("DEBUGGING - Rendering ImagePreview for expiry photo");
     return (
       <ImagePreview
         imageUri={expiryPhotoUri}
-        onAccept={() => processExpiryPhoto(expiryPhotoUri)}
+        onAccept={() => {
+          console.log("DEBUGGING - onAccept callback for expiry photo");
+          processExpiryPhoto(expiryPhotoUri);
+        }}
         onRetake={handleRetakeExpiryPhoto}
         photoType="expiry"
       />

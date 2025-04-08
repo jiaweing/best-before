@@ -90,19 +90,28 @@ export const analyzeProductImage = async (
       ],
     });
 
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
     const prompt = `
       Analyze this product image and extract the following information:
       1. Product name
       2. Product description (brief)
       3. Product category (e.g., Dairy, Meat, Vegetables, Fruits, Beverages, Snacks, Canned Goods, etc.)
+      4. Expiry date (best before date, use by date, or expiration date) if visible in the image
 
       IMPORTANT: Return ONLY a valid JSON object with no additional text, comments, or explanations.
       The JSON must have the following format:
       {
         "name": "Product Name",
         "description": "Product Description",
-        "category": "Product Category"
+        "category": "Product Category",
+        "expiryDate": "YYYY-MM-DD",
+        "purchaseDate": "${today}"
       }
+
+      For the expiryDate:
+      - If you can see an expiry date in the image, format it as YYYY-MM-DD
+      - If no expiry date is visible, set expiryDate to an empty string ""
 
       Do not include any markdown formatting, code blocks, or any text before or after the JSON.
       The response should start with '{' and end with '}' with no other characters.
@@ -125,7 +134,19 @@ export const analyzeProductImage = async (
     console.log("Gemini response text:", text);
 
     try {
-      return extractJsonFromText(text);
+      const result = extractJsonFromText(text);
+      console.log(
+        "Extracted JSON from Gemini response:",
+        JSON.stringify(result, null, 2)
+      );
+
+      // Add additional debugging for expiry date
+      console.log(
+        "Expiry date in extracted JSON:",
+        result.expiryDate ? `"${result.expiryDate}"` : "NOT FOUND"
+      );
+
+      return result;
     } catch (error) {
       console.error("Error extracting JSON:", error);
       throw new Error("Failed to parse JSON from Gemini response");
@@ -133,10 +154,13 @@ export const analyzeProductImage = async (
   } catch (error) {
     console.error("Error analyzing product image:", error);
     // Return default values as fallback
+    const today = new Date().toISOString().split("T")[0];
     return {
       name: "Unknown Product",
       description: "Could not analyze product image",
       category: "Other",
+      expiryDate: "", // Empty string instead of undefined
+      purchaseDate: today,
     };
   }
 };
@@ -193,7 +217,12 @@ export const extractExpiryDate = async (
     console.log("Gemini expiry date response text:", text);
 
     try {
-      return extractJsonFromText(text);
+      const result = extractJsonFromText(text);
+      console.log(
+        "Extracted expiry date JSON:",
+        JSON.stringify(result, null, 2)
+      );
+      return result;
     } catch (error) {
       console.error("Error extracting JSON:", error);
       throw new Error("Failed to parse JSON from Gemini response");

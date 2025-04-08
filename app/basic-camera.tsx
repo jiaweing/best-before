@@ -153,13 +153,34 @@ export default function BasicCameraScreen() {
       );
       const productData = await analyzeProductImage(key, base64);
 
+      // Check if an expiry date was found in the product photo
+      console.log(
+        "Checking for expiry date in product data:",
+        productData.expiryDate ? "FOUND" : "NOT FOUND"
+      );
+
+      // Update form data with product info
       setFormData((prev) => ({
         ...prev,
         ...productData,
         imageUri: uri,
       }));
 
-      setStep("expiry");
+      // Check if we have a valid expiry date from the product photo
+      if (productData.expiryDate && productData.expiryDate.trim() !== "") {
+        console.log(
+          "Expiry date found in product image, skipping to confirm:",
+          productData.expiryDate
+        );
+        // Skip expiry photo step and go directly to confirm
+        setStep("confirm");
+      } else {
+        console.log(
+          "No expiry date found in product image, requesting second photo"
+        );
+        // Proceed to expiry photo step
+        setStep("expiry");
+      }
     } catch (error) {
       console.error("Error processing product photo:", error);
       Alert.alert(
@@ -172,7 +193,24 @@ export default function BasicCameraScreen() {
           },
           {
             text: "Continue",
-            onPress: () => setStep("expiry"),
+            onPress: () => {
+              // Check if we already have an expiry date in the form data
+              if (
+                formData.expiryDate &&
+                formData.expiryDate !== new Date().toISOString()
+              ) {
+                console.log(
+                  "Using existing expiry date, skipping to confirm:",
+                  formData.expiryDate
+                );
+                setStep("confirm");
+              } else {
+                console.log(
+                  "No existing expiry date, going to expiry photo step"
+                );
+                setStep("expiry");
+              }
+            },
           },
         ]
       );

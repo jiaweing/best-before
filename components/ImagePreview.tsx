@@ -18,6 +18,11 @@ export default function ImagePreview({
   onRetake,
   photoType,
 }: ImagePreviewProps) {
+  // Add debug wrapper for onAccept
+  const handleAccept = () => {
+    console.log("DEBUGGING - ImagePreview onAccept called for", photoType);
+    onAccept();
+  };
   return (
     <View className="flex-1 bg-background">
       {/* Header */}
@@ -34,7 +39,7 @@ export default function ImagePreview({
         </Text>
 
         <TouchableOpacity
-          onPress={onAccept}
+          onPress={handleAccept}
           className="w-10 h-10 rounded-full bg-primary justify-center items-center"
         >
           <Check size={24} className="text-primary-foreground" />
@@ -57,7 +62,7 @@ export default function ImagePreview({
         <Button variant="outline" onPress={onRetake} className="flex-1 mr-2">
           <Text>Retake</Text>
         </Button>
-        <Button onPress={onAccept} className="flex-1 ml-2">
+        <Button onPress={handleAccept} className="flex-1 ml-2">
           <Text>Use Photo</Text>
         </Button>
       </View>
