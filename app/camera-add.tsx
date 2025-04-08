@@ -1,4 +1,4 @@
-import { Camera } from "expo-camera";
+import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -41,13 +41,11 @@ export default function CameraAddScreen() {
   const [productPhotoUri, setProductPhotoUri] = useState<string | null>(null);
   const [expiryPhotoUri, setExpiryPhotoUri] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [cameraType, setCameraType] = useState(
-    Camera.Constants?.Type?.back || "back"
-  );
+  const [cameraType, setCameraType] = useState<CameraType>("back");
   const [isCapturing, setIsCapturing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [apiKey, setApiKey] = useState<string | null>(null);
-  const cameraRef = useRef<Camera>(null);
+  const cameraRef = useRef<any>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -58,17 +56,23 @@ export default function CameraAddScreen() {
     imageUri: "",
   });
 
+  const [permission, requestPermission] = useCameraPermissions();
+
   useEffect(() => {
     (async () => {
-      // Request camera permission
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
+      // Request camera permission if not already granted
+      if (!permission?.granted) {
+        const permissionResult = await requestPermission();
+        setHasPermission(permissionResult.granted);
+      } else {
+        setHasPermission(true);
+      }
 
       // Get API key
       const key = geminiConfig?.apiKey || (await getApiKey());
       setApiKey(key);
     })();
-  }, [geminiConfig]);
+  }, [geminiConfig, permission, requestPermission]);
 
   const handleCapture = async () => {
     if (cameraRef.current && !isCapturing) {
@@ -97,16 +101,7 @@ export default function CameraAddScreen() {
   };
 
   const toggleCameraType = () => {
-    if (!Camera.Constants?.Type) {
-      console.log("Camera.Constants.Type is not available");
-      return;
-    }
-
-    setCameraType((current) =>
-      current === Camera.Constants.Type.back
-        ? Camera.Constants.Type.front
-        : Camera.Constants.Type.back
-    );
+    setCameraType((current) => (current === "back" ? "front" : "back"));
   };
 
   const handleBack = () => {
@@ -158,11 +153,32 @@ export default function CameraAddScreen() {
       // Analyze with Gemini
       const productData = await analyzeProductImage(apiKey, base64);
 
-      setFormData((prev) => ({
-        ...prev,
-        ...productData,
-        imageUri: productPhotoUri,
-      }));
+      console.log(
+        "Product data received from Gemini:",
+        JSON.stringify(productData, null, 2)
+      );
+
+      // Ensure we have valid data before updating form
+      if (productData) {
+        setFormData((prev) => {
+          const updatedData = {
+            ...prev,
+            name: productData.name || prev.name,
+            description: productData.description || prev.description,
+            category: productData.category || prev.category,
+            expiryDate: productData.expiryDate || prev.expiryDate,
+            purchaseDate: productData.purchaseDate || prev.purchaseDate,
+            imageUri: productPhotoUri,
+          };
+          console.log(
+            "Updated form data after product analysis:",
+            JSON.stringify(updatedData, null, 2)
+          );
+          return updatedData;
+        });
+      } else {
+        console.error("No product data returned from Gemini");
+      }
 
       setStep("expiry-camera");
     } catch (error) {
@@ -201,10 +217,28 @@ export default function CameraAddScreen() {
       // Extract expiry date with Gemini
       const dateData = await extractExpiryDate(apiKey, base64);
 
-      setFormData((prev) => ({
-        ...prev,
-        ...dateData,
-      }));
+      console.log(
+        "Expiry date data received from Gemini:",
+        JSON.stringify(dateData, null, 2)
+      );
+
+      // Ensure we have valid data before updating form
+      if (dateData) {
+        setFormData((prev) => {
+          const updatedData = {
+            ...prev,
+            expiryDate: dateData.expiryDate || prev.expiryDate,
+            purchaseDate: dateData.purchaseDate || prev.purchaseDate,
+          };
+          console.log(
+            "Updated form data after expiry date analysis:",
+            JSON.stringify(updatedData, null, 2)
+          );
+          return updatedData;
+        });
+      } else {
+        console.error("No expiry date data returned from Gemini");
+      }
 
       setStep("confirm");
     } catch (error) {
@@ -220,6 +254,7 @@ export default function CameraAddScreen() {
 
   const handleConfirm = () => {
     try {
+      console.log("Submitting form data:", JSON.stringify(formData, null, 2));
       addItem(formData);
       Alert.alert("Success", "Item added successfully", [
         { text: "OK", onPress: () => router.push("/") },
@@ -265,7 +300,7 @@ export default function CameraAddScreen() {
     return (
       <View className="flex-1 justify-center items-center bg-background">
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text className="mt-4">Processing image with AI...</Text>
+        <Text className="mt-4">Processing..</Text>
       </View>
     );
   }
@@ -274,11 +309,11 @@ export default function CameraAddScreen() {
   if (step === "product-camera") {
     return (
       <View className="flex-1 bg-black">
-        <Camera
+        <CameraView
           ref={cameraRef}
-          type={cameraType}
+          facing={cameraType}
           className="flex-1"
-          ratio="9:16"
+          ratio="16:9"
         >
           <View className="flex-1 bg-transparent">
             {/* Header */}
@@ -326,7 +361,7 @@ export default function CameraAddScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </Camera>
+        </CameraView>
       </View>
     );
   }
@@ -386,11 +421,11 @@ export default function CameraAddScreen() {
   if (step === "expiry-camera") {
     return (
       <View className="flex-1 bg-black">
-        <Camera
+        <CameraView
           ref={cameraRef}
-          type={cameraType}
+          facing={cameraType}
           className="flex-1"
-          ratio="9:16"
+          ratio="16:9"
         >
           <View className="flex-1 bg-transparent">
             {/* Header */}
@@ -440,7 +475,7 @@ export default function CameraAddScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </Camera>
+        </CameraView>
       </View>
     );
   }
@@ -519,7 +554,7 @@ export default function CameraAddScreen() {
           <View className="items-center mb-4">
             <View className="w-40 aspect-[9/16] rounded-lg overflow-hidden">
               <Image
-                source={{ uri: productPhotoUri }}
+                source={{ uri: productPhotoUri || "" }}
                 className="w-full h-full"
                 resizeMode="cover"
               />

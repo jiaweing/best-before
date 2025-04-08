@@ -21,6 +21,7 @@ import { Camera } from "~/lib/icons/Camera";
 import {
   analyzeProductImage,
   extractExpiryDate,
+  extractNutritionAndIngredients,
   imageToBase64,
 } from "~/services/gemini";
 import { getApiKey } from "~/services/storage";
@@ -44,6 +45,8 @@ export default function BasicCameraScreen() {
     expiryDate: new Date().toISOString(),
     purchaseDate: new Date().toISOString(),
     imageUri: "",
+    nutritionFacts: "",
+    ingredients: "",
   });
 
   useEffect(() => {
@@ -300,6 +303,87 @@ export default function BasicCameraScreen() {
     }
   };
 
+  const handleCaptureNutrition = async () => {
+    try {
+      // Request camera permission
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission required",
+          "Camera permission is required to take photos"
+        );
+        return;
+      }
+
+      // Take photo
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [9, 16],
+        quality: 0.7,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const uri = result.assets[0].uri;
+        processNutritionPhoto(uri);
+      }
+    } catch (error) {
+      console.error("Error taking nutrition photo:", error);
+      Alert.alert("Error", "Failed to take photo. Please try again.");
+    }
+  };
+
+  const processNutritionPhoto = async (uri: string) => {
+    setIsLoading(true);
+    try {
+      // Get API key
+      const activeKey = apiKey || geminiConfig?.apiKey;
+      if (!activeKey) {
+        Alert.alert(
+          "API Key Required",
+          "Please set your Gemini API key in the settings."
+        );
+        return;
+      }
+
+      // Resize and compress the image
+      const manipResult = await ImageManipulator.manipulateAsync(
+        uri,
+        [{ resize: { width: 800 } }],
+        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+      );
+
+      // Convert to base64
+      const base64 = await imageToBase64(manipResult.uri);
+
+      // Extract nutrition facts and ingredients with Gemini
+      const nutritionData = await extractNutritionAndIngredients(
+        activeKey,
+        base64
+      );
+
+      // Update the form data
+      setFormData((prev) => ({
+        ...prev,
+        nutritionFacts: nutritionData.nutritionFacts || "",
+        ingredients: nutritionData.ingredients || "",
+      }));
+
+      Alert.alert(
+        "Success",
+        "Nutrition facts and ingredients extracted successfully!"
+      );
+    } catch (error) {
+      console.error("Error processing nutrition photo:", error);
+      Alert.alert(
+        "Error",
+        "Failed to extract nutrition information. Please try again or enter details manually."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!apiKey) {
     return (
       <View className="flex-1 justify-center items-center p-4 bg-background">
@@ -317,7 +401,7 @@ export default function BasicCameraScreen() {
     return (
       <View className="flex-1 justify-center items-center bg-background">
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text className="mt-4">Processing image with AI...</Text>
+        <Text className="mt-4">Processing...</Text>
       </View>
     );
   }
@@ -541,6 +625,40 @@ export default function BasicCameraScreen() {
             <Text className="text-xs text-muted-foreground mt-1">
               Format: YYYY-MM-DD
             </Text>
+          </View>
+
+          {/* Nutrition Facts and Ingredients - Optional */}
+          <View className="mb-4">
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="font-medium">Nutrition Facts (Optional)</Text>
+              <TouchableOpacity
+                onPress={handleCaptureNutrition}
+                className="bg-primary p-2 rounded-md flex-row items-center"
+              >
+                <Camera size={16} color="white" />
+                <Text className="text-white ml-1 text-sm">Scan Label</Text>
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              value={formData.nutritionFacts || ""}
+              onChangeText={(value) => handleChange("nutritionFacts", value)}
+              className="border border-input rounded-md p-2 bg-background text-foreground"
+              placeholder="Enter nutrition facts"
+              multiline
+              numberOfLines={4}
+            />
+          </View>
+
+          <View className="mb-6">
+            <Text className="mb-1 font-medium">Ingredients (Optional)</Text>
+            <TextInput
+              value={formData.ingredients || ""}
+              onChangeText={(value) => handleChange("ingredients", value)}
+              className="border border-input rounded-md p-2 bg-background text-foreground"
+              placeholder="Enter ingredients list"
+              multiline
+              numberOfLines={4}
+            />
           </View>
 
           <Text className="text-center text-muted-foreground mb-4">

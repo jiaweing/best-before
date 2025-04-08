@@ -1,6 +1,12 @@
 import { format, parseISO } from "date-fns";
 import React, { useState } from "react";
-import { Image, ScrollView, TextInput, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Calendar } from "~/lib/icons/Calendar";
@@ -13,6 +19,7 @@ interface ItemFormProps {
   onSubmit: (data: ItemFormData) => void;
   onCancel: () => void;
   isLoading?: boolean;
+  onCaptureNutrition?: () => void;
 }
 
 export default function ItemForm({
@@ -20,6 +27,7 @@ export default function ItemForm({
   onSubmit,
   onCancel,
   isLoading = false,
+  onCaptureNutrition,
 }: ItemFormProps) {
   const [formData, setFormData] = useState<Partial<ItemFormData>>({
     name: "",
@@ -28,6 +36,8 @@ export default function ItemForm({
     expiryDate: new Date().toISOString(),
     purchaseDate: new Date().toISOString(),
     imageUri: "",
+    nutritionFacts: "",
+    ingredients: "",
     ...initialData,
   });
 
@@ -143,7 +153,7 @@ export default function ItemForm({
           </Text>
         </View>
 
-        <View className="mb-6">
+        <View className="mb-4">
           <Text className="mb-1 font-medium">Purchase Date</Text>
           <View className="flex-row items-center border border-input rounded-md p-2 bg-background">
             <Calendar size={20} className="text-muted-foreground mr-2" />
@@ -157,6 +167,42 @@ export default function ItemForm({
           <Text className="text-xs text-muted-foreground mt-1">
             Format: YYYY-MM-DD
           </Text>
+        </View>
+
+        {/* Nutrition Facts and Ingredients - Optional */}
+        <View className="mb-4">
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="font-medium">Nutrition Facts (Optional)</Text>
+            {onCaptureNutrition && (
+              <TouchableOpacity
+                onPress={onCaptureNutrition}
+                className="bg-primary p-2 rounded-md flex-row items-center"
+              >
+                <CameraIcon size={16} color="white" />
+                <Text className="text-white ml-1 text-sm">Scan Label</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <TextInput
+            value={formData.nutritionFacts || ""}
+            onChangeText={(value) => handleChange("nutritionFacts", value)}
+            className="border border-input rounded-md p-2 bg-background text-foreground"
+            placeholder="Enter nutrition facts"
+            multiline
+            numberOfLines={4}
+          />
+        </View>
+
+        <View className="mb-6">
+          <Text className="mb-1 font-medium">Ingredients (Optional)</Text>
+          <TextInput
+            value={formData.ingredients || ""}
+            onChangeText={(value) => handleChange("ingredients", value)}
+            className="border border-input rounded-md p-2 bg-background text-foreground"
+            placeholder="Enter ingredients list"
+            multiline
+            numberOfLines={4}
+          />
         </View>
 
         {/* Buttons */}

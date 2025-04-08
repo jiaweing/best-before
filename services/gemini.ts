@@ -237,3 +237,100 @@ export const extractExpiryDate = async (
     };
   }
 };
+
+// Function to extract nutrition facts and ingredients from image
+export const extractNutritionAndIngredients = async (
+  apiKey: string,
+  imageBase64: string
+): Promise<{ nutritionFacts?: string; ingredients?: string }> => {
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        temperature: 0.2,
+        topK: 32,
+        topP: 1,
+      },
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+      ],
+    });
+
+    const prompt = `
+      Analyze this image of a nutrition label and extract the following information:
+      1. Nutrition facts - provide a structured summary of the nutrition information
+      2. Ingredients list - extract the full ingredients list if visible
+
+      IMPORTANT: Return ONLY a valid JSON object with no additional text, comments, or explanations.
+      The JSON must have the following format:
+      {
+        "nutritionFacts": "Structured summary of nutrition facts",
+        "ingredients": "Full ingredients list"
+      }
+
+      For the nutritionFacts:
+      - Include serving size, calories, and key nutrients (fat, carbs, protein, etc.)
+      - Format in a readable, structured way
+      - If no nutrition facts are visible, set to an empty string ""
+
+      For the ingredients:
+      - Include the complete ingredients list if visible
+      - Maintain the original order
+      - If no ingredients list is visible, set to an empty string ""
+
+      Do not include any markdown formatting, code blocks, or any text before or after the JSON.
+      The response should start with '{' and end with '}' with no other characters.
+    `;
+
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: imageBase64,
+        },
+      },
+    ]);
+
+    const response = result.response;
+    const text = response.text();
+
+    // Extract JSON from the response
+    console.log("Gemini nutrition and ingredients response text:", text);
+
+    try {
+      const result = extractJsonFromText(text);
+      console.log(
+        "Extracted nutrition and ingredients JSON:",
+        JSON.stringify(result, null, 2)
+      );
+      return result;
+    } catch (error) {
+      console.error("Error extracting JSON:", error);
+      throw new Error("Failed to parse JSON from Gemini response");
+    }
+  } catch (error) {
+    console.error("Error extracting nutrition and ingredients:", error);
+    // Return empty strings as fallback
+    return {
+      nutritionFacts: "",
+      ingredients: "",
+    };
+  }
+};

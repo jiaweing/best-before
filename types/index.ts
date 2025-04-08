@@ -8,6 +8,8 @@ export interface Item {
   imageUri: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+  nutritionFacts?: string; // Optional nutrition facts
+  ingredients?: string; // Optional ingredients list
 }
 
 export interface ItemFormData {
@@ -17,6 +19,8 @@ export interface ItemFormData {
   expiryDate: string;
   purchaseDate: string;
   imageUri: string;
+  nutritionFacts?: string; // Optional nutrition facts
+  ingredients?: string; // Optional ingredients list
 }
 
 export interface GeminiConfig {
@@ -29,7 +33,7 @@ export interface NotificationSettings {
   frequency: "daily" | "weekly" | "once";
 }
 
-export type PhotoType = "product" | "expiry";
+export type PhotoType = "product" | "expiry" | "nutrition";
 
 export interface AppState {
   items: Item[];
