@@ -14,9 +14,15 @@ import { Text } from "~/components/ui/text";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { Bell } from "~/lib/icons/Bell";
 import { Calendar } from "~/lib/icons/Calendar";
+import { Export } from "~/lib/icons/Export";
+import { Import } from "~/lib/icons/Import";
 import { Info } from "~/lib/icons/Info";
 import { Key } from "~/lib/icons/Key";
 import { Repeat } from "~/lib/icons/Repeat";
+import {
+  exportItemsToJson,
+  importItemsFromJson,
+} from "~/services/import-export";
 import {
   checkNotificationsAvailability,
   sendTestNotification,
@@ -34,6 +40,8 @@ export default function SettingsScreen() {
   const setNotificationSettings = useStore(
     (state) => state.setNotificationSettings
   );
+  const items = useStore((state) => state.items);
+  const addItem = useStore((state) => state.addItem);
 
   const [apiKey, setApiKey] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -184,6 +192,90 @@ export default function SettingsScreen() {
   // Handle test notification button press
   const handleTestNotification = async () => {
     await sendTestNotification();
+  };
+
+  // Handle export data
+  const handleExportData = async () => {
+    try {
+      if (items.length === 0) {
+        Alert.alert("No Data", "There are no items to export.");
+        return;
+      }
+      await exportItemsToJson(items);
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      Alert.alert("Export Error", "Failed to export data. Please try again.");
+    }
+  };
+
+  // Handle import data
+  const handleImportData = async () => {
+    try {
+      Alert.alert(
+        "Import Data",
+        "This will import items from a JSON file. Do you want to replace all existing items or merge with current items?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Replace All",
+            onPress: async () => {
+              const importedItems = await importItemsFromJson();
+              if (importedItems && importedItems.length > 0) {
+                // Clear existing items first by setting an empty array in the store
+                useStore.setState({ items: [] });
+
+                // Add each imported item
+                importedItems.forEach((item) => {
+                  addItem({
+                    name: item.name,
+                    description: item.description,
+                    category: item.category,
+                    expiryDate: item.expiryDate,
+                    purchaseDate: item.purchaseDate,
+                    imageUri: item.imageUri,
+                  });
+                });
+
+                Alert.alert(
+                  "Import Successful",
+                  `Imported ${importedItems.length} items.`
+                );
+              }
+            },
+          },
+          {
+            text: "Merge",
+            onPress: async () => {
+              const importedItems = await importItemsFromJson();
+              if (importedItems && importedItems.length > 0) {
+                // Add each imported item
+                importedItems.forEach((item) => {
+                  addItem({
+                    name: item.name,
+                    description: item.description,
+                    category: item.category,
+                    expiryDate: item.expiryDate,
+                    purchaseDate: item.purchaseDate,
+                    imageUri: item.imageUri,
+                  });
+                });
+
+                Alert.alert(
+                  "Import Successful",
+                  `Imported ${importedItems.length} items.`
+                );
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Error importing data:", error);
+      Alert.alert("Import Error", "Failed to import data. Please try again.");
+    }
   };
 
   if (isLoading) {
@@ -402,6 +494,33 @@ export default function SettingsScreen() {
               </View>
             </>
           )}
+        </View>
+
+        {/* Data Import/Export Section */}
+        <View className="mb-6">
+          <Text className="text-lg font-semibold mb-2">Data Management</Text>
+          <Text className="text-muted-foreground mb-4">
+            Import or export your item data as JSON files.
+          </Text>
+
+          <View className="flex-row mt-4">
+            <TouchableOpacity
+              onPress={handleImportData}
+              className="flex-1 mr-2 h-10 rounded-md border border-input justify-center items-center flex-row"
+              activeOpacity={0.7}
+            >
+              <Import size={20} className="text-foreground mr-2" />
+              <Text className="text-foreground font-medium">Import Data</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleExportData}
+              className="flex-1 ml-2 h-10 rounded-md border border-input justify-center items-center flex-row"
+              activeOpacity={0.7}
+            >
+              <Export size={20} className="text-foreground mr-2" />
+              <Text className="text-foreground font-medium">Export Data</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View className="p-4 bg-muted rounded-lg mb-4">
