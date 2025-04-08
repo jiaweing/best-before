@@ -11,6 +11,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
 import { Platform } from "react-native";
+import { NotificationInitializer } from "~/components/NotificationInitializer";
 import { setAndroidNavigationBar } from "~/lib/android-navigation-bar";
 import { NAV_THEME } from "~/lib/constants";
 import { useColorScheme } from "~/lib/useColorScheme";
@@ -65,6 +66,7 @@ export default function RootLayout() {
         <Stack.Screen name="item" options={{ title: "Items" }} />
       </Stack>
       <PortalHost />
+      <NotificationInitializer />
     </ThemeProvider>
   );
 }

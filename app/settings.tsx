@@ -3,15 +3,24 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  ScrollView,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { ThemeToggle } from "~/components/ThemeToggle";
+import { Switch } from "~/components/ui/switch";
 import { Text } from "~/components/ui/text";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
+import { Bell } from "~/lib/icons/Bell";
+import { Calendar } from "~/lib/icons/Calendar";
 import { Info } from "~/lib/icons/Info";
 import { Key } from "~/lib/icons/Key";
+import { Repeat } from "~/lib/icons/Repeat";
+import {
+  checkNotificationsAvailability,
+  sendTestNotification,
+} from "~/services/notifications";
 import { deleteApiKey, getApiKey, saveApiKey } from "~/services/storage";
 import { useStore } from "~/store";
 
@@ -21,12 +30,29 @@ export default function SettingsScreen() {
   const geminiConfig = useStore((state) => state.geminiConfig);
   console.log("Current geminiConfig:", geminiConfig ? "exists" : "null");
   const setGeminiConfig = useStore((state) => state.setGeminiConfig);
+  const notificationSettings = useStore((state) => state.notificationSettings);
+  const setNotificationSettings = useStore(
+    (state) => state.setNotificationSettings
+  );
+
   const [apiKey, setApiKey] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
 
+  // Local state for notification settings
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [daysBeforeExpiry, setDaysBeforeExpiry] = useState("7");
+  const [notificationFrequency, setNotificationFrequency] = useState<
+    "daily" | "weekly" | "once"
+  >("daily");
+
   useEffect(() => {
+    // Initialize local notification settings from store
+    setNotificationsEnabled(notificationSettings.enabled);
+    setDaysBeforeExpiry(notificationSettings.daysBeforeExpiry.toString());
+    setNotificationFrequency(notificationSettings.frequency);
+
     const loadApiKey = async () => {
       try {
         console.log("Loading API key in settings screen...");
@@ -61,7 +87,7 @@ export default function SettingsScreen() {
     };
 
     loadApiKey();
-  }, [geminiConfig]);
+  }, [geminiConfig, notificationSettings]);
 
   const handleSave = async () => {
     console.log("Save button pressed");
@@ -128,6 +154,38 @@ export default function SettingsScreen() {
     router.back();
   };
 
+  // Handle notification settings changes
+  const handleToggleNotifications = (value: boolean) => {
+    // If enabling notifications, check if they're supported
+    if (value && !checkNotificationsAvailability()) {
+      // If not supported, don't enable
+      return;
+    }
+
+    setNotificationsEnabled(value);
+    setNotificationSettings({ enabled: value });
+  };
+
+  const handleDaysBeforeExpiryChange = (value: string) => {
+    // Only allow numbers
+    if (value === "" || /^\d+$/.test(value)) {
+      setDaysBeforeExpiry(value);
+      if (value !== "") {
+        setNotificationSettings({ daysBeforeExpiry: parseInt(value, 10) });
+      }
+    }
+  };
+
+  const handleFrequencyChange = (value: "daily" | "weekly" | "once") => {
+    setNotificationFrequency(value);
+    setNotificationSettings({ frequency: value });
+  };
+
+  // Handle test notification button press
+  const handleTestNotification = async () => {
+    await sendTestNotification();
+  };
+
   if (isLoading) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
@@ -155,7 +213,7 @@ export default function SettingsScreen() {
       </View>
 
       {/* Content */}
-      <View className="flex-1 p-4">
+      <ScrollView className="flex-1 p-4">
         <View className="mb-6">
           <Text className="text-lg font-semibold mb-2">Gemini API Key</Text>
           <Text className="text-muted-foreground mb-4">
@@ -212,7 +270,141 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <View className="p-4 bg-muted rounded-lg">
+        <View className="mb-6">
+          <Text className="text-lg font-semibold mb-2">Notifications</Text>
+          <Text className="text-muted-foreground mb-4">
+            Configure when and how often you want to be notified about expiring
+            items.
+          </Text>
+
+          {/* Enable/Disable Notifications */}
+          <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-center">
+              <Bell size={20} className="text-muted-foreground mr-2" />
+              <Text>Enable Notifications</Text>
+            </View>
+            <Switch
+              checked={notificationsEnabled}
+              onCheckedChange={handleToggleNotifications}
+            />
+          </View>
+
+          {/* Notification warning for Expo Go */}
+          <View className="mb-4 p-2 bg-yellow-100 dark:bg-yellow-900 rounded-md">
+            <Text className="text-xs text-yellow-800 dark:text-yellow-200">
+              Note: Full notification support requires a development build. Some
+              notification features may be limited in Expo Go.
+            </Text>
+          </View>
+
+          {/* Test Notification Button */}
+          <TouchableOpacity
+            onPress={handleTestNotification}
+            className="mb-4 h-10 rounded-md bg-primary justify-center items-center"
+            activeOpacity={0.7}
+          >
+            <Text className="text-primary-foreground font-medium">
+              Send Test Notification
+            </Text>
+          </TouchableOpacity>
+
+          {notificationsEnabled && (
+            <>
+              {/* Days Before Expiry */}
+              <View className="mb-4">
+                <Text className="mb-1 font-medium">Days Before Expiry</Text>
+                <View className="flex-row items-center border border-input rounded-md p-2 bg-background">
+                  <Calendar size={20} className="text-muted-foreground mr-2" />
+                  <TextInput
+                    value={daysBeforeExpiry}
+                    onChangeText={handleDaysBeforeExpiryChange}
+                    placeholder="7"
+                    keyboardType="numeric"
+                    className="flex-1 bg-background text-foreground"
+                  />
+                </View>
+                <Text className="text-xs text-muted-foreground mt-1">
+                  How many days before expiry to start notifications
+                </Text>
+              </View>
+
+              {/* Notification Frequency */}
+              <View className="mb-4">
+                <Text className="mb-1 font-medium">Notification Frequency</Text>
+                <View className="flex-row items-center mb-2">
+                  <Repeat size={20} className="text-muted-foreground mr-2" />
+                  <Text className="text-muted-foreground">
+                    How often to send notifications
+                  </Text>
+                </View>
+
+                <View className="flex-row mt-2">
+                  <TouchableOpacity
+                    onPress={() => handleFrequencyChange("daily")}
+                    className={`flex-1 mr-2 h-10 rounded-md border ${
+                      notificationFrequency === "daily"
+                        ? "bg-primary border-primary"
+                        : "border-input"
+                    } justify-center items-center`}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      className={
+                        notificationFrequency === "daily"
+                          ? "text-primary-foreground font-medium"
+                          : "text-foreground font-medium"
+                      }
+                    >
+                      Daily
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => handleFrequencyChange("weekly")}
+                    className={`flex-1 mx-2 h-10 rounded-md border ${
+                      notificationFrequency === "weekly"
+                        ? "bg-primary border-primary"
+                        : "border-input"
+                    } justify-center items-center`}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      className={
+                        notificationFrequency === "weekly"
+                          ? "text-primary-foreground font-medium"
+                          : "text-foreground font-medium"
+                      }
+                    >
+                      Weekly
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => handleFrequencyChange("once")}
+                    className={`flex-1 ml-2 h-10 rounded-md border ${
+                      notificationFrequency === "once"
+                        ? "bg-primary border-primary"
+                        : "border-input"
+                    } justify-center items-center`}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      className={
+                        notificationFrequency === "once"
+                          ? "text-primary-foreground font-medium"
+                          : "text-foreground font-medium"
+                      }
+                    >
+                      Once
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </>
+          )}
+        </View>
+
+        <View className="p-4 bg-muted rounded-lg mb-4">
           <View className="flex-row items-start">
             <Info size={20} className="text-muted-foreground mr-2 mt-0.5" />
             <Text className="flex-1 text-muted-foreground">
@@ -222,7 +414,7 @@ export default function SettingsScreen() {
             </Text>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }

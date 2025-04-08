@@ -23,13 +23,23 @@ export interface GeminiConfig {
   apiKey: string;
 }
 
+export interface NotificationSettings {
+  enabled: boolean;
+  daysBeforeExpiry: number;
+  frequency: "daily" | "weekly" | "once";
+}
+
 export type PhotoType = "product" | "expiry";
 
 export interface AppState {
   items: Item[];
   geminiConfig: GeminiConfig | null;
+  notificationSettings: NotificationSettings;
+  notificationIds: Record<string, string[]>;
   addItem: (item: ItemFormData) => void;
   updateItem: (id: string, item: Partial<ItemFormData>) => void;
   deleteItem: (id: string) => void;
   setGeminiConfig: (config: GeminiConfig | null) => void;
+  setNotificationSettings: (settings: Partial<NotificationSettings>) => void;
+  setNotificationIds: (ids: Record<string, string[]>) => void;
 }
