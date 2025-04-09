@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  ScrollView,
   TextInput,
   TouchableOpacity,
   View,
@@ -11,6 +12,7 @@ import {
 import Animated, { FadeIn } from "react-native-reanimated";
 import ItemCard from "~/components/ItemCard";
 import { Button } from "~/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Text } from "~/components/ui/text";
 import { Plus } from "~/lib/icons/Plus";
 import { QrCode } from "~/lib/icons/QrCode";
@@ -27,14 +29,29 @@ export default function HomeScreen() {
   const [hasApiKey, setHasApiKey] = useState(false);
   const { isDarkColorScheme } = useColorScheme();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   console.log("Home screen - geminiConfig:", geminiConfig ? "exists" : "null");
 
-  // Sort and filter items by expiry date and search query
+  // Extract unique categories from items
+  const categories = useMemo(() => {
+    if (!items.length) return [];
+
+    // Get unique categories
+    const uniqueCategories = Array.from(
+      new Set(items.map((item) => item.category))
+    ).filter((category) => category.trim() !== ""); // Filter out empty categories
+
+    // Sort alphabetically
+    return uniqueCategories.sort();
+  }, [items]);
+
+  // Sort and filter items by expiry date, search query, and selected category
   const filteredAndSortedItems = useMemo(() => {
     if (!items.length) return [];
 
-    const filtered = searchQuery
+    // First filter by search query
+    const searchFiltered = searchQuery
       ? items.filter(
           (item) =>
             item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -45,7 +62,14 @@ export default function HomeScreen() {
         )
       : items;
 
-    return [...filtered].sort((a, b) => {
+    // Then filter by selected category (if not "All")
+    const categoryFiltered =
+      selectedCategory === "All"
+        ? searchFiltered
+        : searchFiltered.filter((item) => item.category === selectedCategory);
+
+    // Finally sort by expiry date
+    return [...categoryFiltered].sort((a, b) => {
       const daysUntilExpiryA = differenceInDays(
         parseISO(a.expiryDate),
         new Date()
@@ -56,7 +80,7 @@ export default function HomeScreen() {
       );
       return daysUntilExpiryA - daysUntilExpiryB;
     });
-  }, [items, searchQuery]);
+  }, [items, searchQuery, selectedCategory]);
 
   useEffect(() => {
     const checkApiKey = async () => {
@@ -131,6 +155,30 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Category tabs - only show if there are items */}
+      {items.length > 0 && categories.length > 0 && (
+        <View className="px-6 mb-4">
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <TabsList className="flex-row w-auto">
+                <TabsTrigger value="All" className="mr-2 px-4 py-2">
+                  <Text className="font-medium">All</Text>
+                </TabsTrigger>
+                {categories.map((category) => (
+                  <TabsTrigger
+                    key={category}
+                    value={category}
+                    className="mr-2 px-4 py-2"
+                  >
+                    <Text className="font-medium">{category}</Text>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </ScrollView>
+          </Tabs>
+        </View>
+      )}
 
       {/* Content */}
       <View className="flex-1 px-6">
