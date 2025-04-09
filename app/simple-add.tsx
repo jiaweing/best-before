@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { ThemeToggle } from "~/components/ThemeToggle";
+
 import { Text } from "~/components/ui/text";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
 import { Calendar } from "~/lib/icons/Calendar";
@@ -85,8 +85,6 @@ export default function SimpleAddScreen() {
           <ArrowLeft className="text-foreground" size={24} />
         </TouchableOpacity>
         <Text className="text-xl font-bold">Add Item (Simple)</Text>
-        <View className="flex-1" />
-        <ThemeToggle />
       </View>
 
       {/* Content */}

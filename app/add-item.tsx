@@ -6,7 +6,6 @@ import { ActivityIndicator, Alert, View } from "react-native";
 import CameraView from "~/components/CameraView";
 import ImagePreview from "~/components/ImagePreview";
 import ItemForm from "~/components/ItemForm";
-import { ThemeToggle } from "~/components/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
@@ -571,8 +570,6 @@ export default function AddItemScreen() {
           <ArrowLeft className="text-foreground" size={24} />
         </Button>
         <Text className="text-xl font-bold">Confirm Details</Text>
-        <View className="flex-1" />
-        <ThemeToggle />
       </View>
 
       {/* Form */}

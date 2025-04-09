@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { ThemeToggle } from "~/components/ThemeToggle";
+
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
@@ -544,8 +544,6 @@ export default function CameraAddScreen() {
             <ArrowLeft className="text-foreground" size={24} />
           </TouchableOpacity>
           <Text className="text-xl font-bold">Confirm Details</Text>
-          <View className="flex-1" />
-          <ThemeToggle />
         </View>
 
         {/* Content */}

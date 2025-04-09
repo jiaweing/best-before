@@ -287,7 +287,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background pt-10">
+    <View className="flex-1 bg-background">
       {/* Header */}
       <View className="flex-row items-center p-4 border-b border-border">
         <TouchableOpacity
@@ -300,8 +300,6 @@ export default function SettingsScreen() {
           <ArrowLeft className="text-foreground" size={24} />
         </TouchableOpacity>
         <Text className="text-xl font-bold">Settings</Text>
-        <View className="flex-1" />
-        <ThemeToggle />
       </View>
 
       {/* Content */}
@@ -497,6 +495,20 @@ export default function SettingsScreen() {
         </View>
 
         {/* Data Import/Export Section */}
+        {/* Theme Toggle Section */}
+        <View className="mb-6">
+          <Text className="text-lg font-semibold mb-2">Appearance</Text>
+          <Text className="text-muted-foreground mb-4">
+            Toggle between light and dark mode.
+          </Text>
+
+          <View className="flex-row items-center justify-between">
+            <Text className="font-medium">Dark Mode</Text>
+            <ThemeToggle />
+          </View>
+        </View>
+
+        {/* Data Management Section */}
         <View className="mb-6">
           <Text className="text-lg font-semibold mb-2">Data Management</Text>
           <Text className="text-muted-foreground mb-4">

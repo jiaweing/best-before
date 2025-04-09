@@ -8,11 +8,9 @@ import {
   View,
 } from "react-native";
 import ItemCard from "~/components/ItemCard";
-import { ThemeToggle } from "~/components/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Plus } from "~/lib/icons/Plus";
-import { Settings } from "~/lib/icons/Settings";
 import { getApiKey } from "~/services/storage";
 import { useStore } from "~/store";
 
@@ -93,16 +91,10 @@ export default function HomeScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background pt-10">
+    <View className="flex-1 bg-background">
       {/* Header */}
       <View className="flex-row justify-between items-center p-4 border-b border-border">
         <Text className="text-xl font-bold">Best Before</Text>
-        <View className="flex-row items-center">
-          <ThemeToggle />
-          <TouchableOpacity onPress={handleOpenSettings} className="ml-2">
-            <Settings className="text-foreground" />
-          </TouchableOpacity>
-        </View>
       </View>
 
       {/* Content */}
@@ -125,14 +117,14 @@ export default function HomeScreen() {
             data={sortedItems}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <ItemCard item={item} />}
-            contentContainerStyle={{ paddingBottom: 80 }}
+            contentContainerStyle={{ paddingBottom: 120 }}
           />
         )}
       </View>
 
       {/* Floating Action Button */}
       {items.length > 0 && (
-        <View className="absolute bottom-6 right-6">
+        <View className="absolute bottom-24 right-6">
           <TouchableOpacity
             onPress={handleAddItem}
             className="w-14 h-14 rounded-full bg-primary justify-center items-center shadow-lg"

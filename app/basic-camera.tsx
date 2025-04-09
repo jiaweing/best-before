@@ -12,7 +12,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { ThemeToggle } from "~/components/ThemeToggle";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
@@ -409,7 +408,7 @@ export default function BasicCameraScreen() {
   // Product photo step
   if (step === "product") {
     return (
-      <View className="flex-1 bg-background pt-10">
+      <View className="flex-1 bg-background">
         {/* Header */}
         <View className="flex-row items-center p-4 border-b border-border">
           <TouchableOpacity
@@ -419,8 +418,6 @@ export default function BasicCameraScreen() {
             <ArrowLeft className="text-foreground" size={24} />
           </TouchableOpacity>
           <Text className="text-xl font-bold">Take Product Photo</Text>
-          <View className="flex-1" />
-          <ThemeToggle />
         </View>
 
         {/* Content */}
@@ -481,8 +478,6 @@ export default function BasicCameraScreen() {
             <ArrowLeft className="text-foreground" size={24} />
           </TouchableOpacity>
           <Text className="text-xl font-bold">Take Expiry Date Photo</Text>
-          <View className="flex-1" />
-          <ThemeToggle />
         </View>
 
         {/* Content */}
@@ -543,8 +538,6 @@ export default function BasicCameraScreen() {
             <ArrowLeft className="text-foreground" size={24} />
           </TouchableOpacity>
           <Text className="text-xl font-bold">Confirm Details</Text>
-          <View className="flex-1" />
-          <ThemeToggle />
         </View>
 
         {/* Content */}

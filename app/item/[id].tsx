@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import ItemForm from "~/components/ItemForm";
-import { ThemeToggle } from "~/components/ThemeToggle";
+
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { ArrowLeft } from "~/lib/icons/ArrowLeft";
@@ -225,7 +225,7 @@ export default function ItemDetailScreen() {
 
   if (isEditing) {
     return (
-      <View className="flex-1 bg-background pt-10">
+      <View className="flex-1 bg-background">
         {/* Header */}
         <View className="flex-row items-center p-4 border-b border-border">
           <Button variant="ghost" className="p-2 mr-2" onPress={handleBack}>
@@ -256,7 +256,7 @@ export default function ItemDetailScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background pt-10">
+    <View className="flex-1 bg-background">
       {/* Header */}
       <View className="flex-row items-center p-4 border-b border-border">
         <Button variant="ghost" className="p-2 mr-2" onPress={handleBack}>
@@ -265,8 +265,6 @@ export default function ItemDetailScreen() {
         <Text className="text-xl font-bold" numberOfLines={1}>
           {item.name}
         </Text>
-        <View className="flex-1" />
-        <ThemeToggle />
       </View>
 
       {/* Content */}
