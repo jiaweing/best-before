@@ -166,14 +166,14 @@ export default function HomeScreen() {
             contentContainerStyle={{ paddingBottom: 120 }}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
-              filteredAndSortedItems.length > 0 && (
+              filteredAndSortedItems.length > 0 ? (
                 <View className="mb-2">
                   <Text className="text-muted-foreground text-sm">
                     {filteredAndSortedItems.length}{" "}
                     {filteredAndSortedItems.length === 1 ? "item" : "items"}
                   </Text>
                 </View>
-              )
+              ) : null
             }
           />
         )}
