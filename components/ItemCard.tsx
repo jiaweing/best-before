@@ -45,12 +45,17 @@ export default function ItemCard({ item }: ItemCardProps) {
       activeOpacity={0.7}
     >
       <Card>
-        <CardContent className="p-0">
-          <View className="flex-row">
+        <CardContent className="p-0 overflow-hidden">
+          <View className="flex-row items-stretch">
             {/* Image */}
             <Image
               source={{ uri: item.imageUri }}
-              className="w-24 h-24 rounded-l-lg"
+              style={{
+                width: 96,
+                height: "100%",
+                borderTopLeftRadius: 8,
+                borderBottomLeftRadius: 8,
+              }}
               resizeMode="cover"
             />
 
