@@ -4,13 +4,18 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 import ItemCard from "~/components/ItemCard";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { Plus } from "~/lib/icons/Plus";
+import { QrCode } from "~/lib/icons/QrCode";
+import { Search } from "~/lib/icons/Search";
+import { useColorScheme } from "~/lib/useColorScheme";
 import { getApiKey } from "~/services/storage";
 import { useStore } from "~/store";
 
@@ -20,14 +25,27 @@ export default function HomeScreen() {
   const geminiConfig = useStore((state) => state.geminiConfig);
   const [isLoading, setIsLoading] = useState(true);
   const [hasApiKey, setHasApiKey] = useState(false);
+  const { isDarkColorScheme } = useColorScheme();
+  const [searchQuery, setSearchQuery] = useState("");
 
   console.log("Home screen - geminiConfig:", geminiConfig ? "exists" : "null");
 
-  // Sort items by expiry date (soonest to furthest)
-  const sortedItems = useMemo(() => {
+  // Sort and filter items by expiry date and search query
+  const filteredAndSortedItems = useMemo(() => {
     if (!items.length) return [];
 
-    return [...items].sort((a, b) => {
+    const filtered = searchQuery
+      ? items.filter(
+          (item) =>
+            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.description
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+            item.category.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : items;
+
+    return [...filtered].sort((a, b) => {
       const daysUntilExpiryA = differenceInDays(
         parseISO(a.expiryDate),
         new Date()
@@ -38,7 +56,7 @@ export default function HomeScreen() {
       );
       return daysUntilExpiryA - daysUntilExpiryB;
     });
-  }, [items]);
+  }, [items, searchQuery]);
 
   useEffect(() => {
     const checkApiKey = async () => {
@@ -93,31 +111,70 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-background">
       {/* Header */}
-      <View className="flex-row justify-between items-center p-4 border-b border-border">
-        <Text className="text-xl font-bold">Best Before</Text>
+      <View className="pt-12 pb-4 px-6">
+        <Text className="text-2xl font-bold">Before</Text>
+      </View>
+
+      {/* Search bar */}
+      <View className="px-6 mb-4">
+        <View className="flex-row items-center bg-secondary rounded-full px-4 py-2">
+          <Search size={18} className="text-muted-foreground mr-2" />
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search items.."
+            className="flex-1 text-foreground"
+            placeholderTextColor="#9ca3af"
+          />
+          <TouchableOpacity>
+            <QrCode size={20} className="text-muted-foreground ml-2" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Content */}
-      <View className="flex-1 p-4">
+      <View className="flex-1 px-6">
         {items.length === 0 ? (
-          <View className="flex-1 justify-center items-center">
-            <Text className="text-lg text-muted-foreground mb-4">
+          <Animated.View
+            entering={FadeIn.duration(400)}
+            className="flex-1 justify-center items-center"
+          >
+            <Text className="text-lg text-muted-foreground mb-6">
               No items yet
             </Text>
             <Button
               onPress={handleAddItem}
-              className="flex flex-row items-center"
+              className="flex flex-row items-center px-6 py-3 rounded-full"
+              variant="default"
             >
               <Plus className="mr-2 text-primary-foreground" size={18} />
-              <Text className="text-primary-foreground">Add Item</Text>
+              <Text className="text-primary-foreground font-medium">
+                Add Item
+              </Text>
             </Button>
-          </View>
+          </Animated.View>
         ) : (
           <FlatList
-            data={sortedItems}
+            data={filteredAndSortedItems}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <ItemCard item={item} />}
+            renderItem={({ item, index }) => (
+              <ItemCard
+                item={item}
+                entering={FadeIn.duration(300).delay(index * 50)}
+              />
+            )}
             contentContainerStyle={{ paddingBottom: 120 }}
+            showsVerticalScrollIndicator={false}
+            ListHeaderComponent={
+              filteredAndSortedItems.length > 0 && (
+                <View className="mb-2">
+                  <Text className="text-muted-foreground text-sm">
+                    {filteredAndSortedItems.length}{" "}
+                    {filteredAndSortedItems.length === 1 ? "item" : "items"}
+                  </Text>
+                </View>
+              )
+            }
           />
         )}
       </View>
@@ -125,12 +182,15 @@ export default function HomeScreen() {
       {/* Floating Action Button */}
       {items.length > 0 && (
         <View className="absolute bottom-24 right-6">
-          <TouchableOpacity
-            onPress={handleAddItem}
-            className="w-14 h-14 rounded-full bg-primary justify-center items-center shadow-lg"
-          >
-            <Plus size={24} className="text-primary-foreground" />
-          </TouchableOpacity>
+          <Animated.View entering={FadeIn.duration(300)} className="shadow-md">
+            <TouchableOpacity
+              onPress={handleAddItem}
+              className="w-14 h-14 rounded-full bg-primary justify-center items-center"
+              activeOpacity={0.8}
+            >
+              <Plus size={24} className="text-primary-foreground" />
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       )}
     </View>

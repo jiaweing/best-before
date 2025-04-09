@@ -1,17 +1,23 @@
 import { differenceInDays, format, parseISO } from "date-fns";
 import { useRouter } from "expo-router";
-import { AlertCircle, Clock } from "lucide-react-native";
 import React from "react";
 import { Image, TouchableOpacity, View } from "react-native";
-import { Card, CardContent } from "~/components/ui/card";
+import Animated, {
+  FadeInRight,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+import { Card } from "~/components/ui/card";
 import { Text } from "~/components/ui/text";
 import { Item } from "~/types";
 
 interface ItemCardProps {
   item: Item;
+  entering?: any; // Animation prop
 }
 
-export default function ItemCard({ item }: ItemCardProps) {
+export default function ItemCard({ item, entering }: ItemCardProps) {
   const router = useRouter();
 
   const daysUntilExpiry = differenceInDays(
@@ -38,29 +44,51 @@ export default function ItemCard({ item }: ItemCardProps) {
     router.push(`/item/${item.id}`);
   };
 
+  // Animation values
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.98, { damping: 20, stiffness: 200 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 20, stiffness: 200 });
+  };
+
   return (
-    <TouchableOpacity
-      onPress={handlePress}
-      className="mb-4"
-      activeOpacity={0.7}
+    <Animated.View
+      entering={entering || FadeInRight.duration(300).delay(100)}
+      style={animatedStyle}
+      className="mb-3"
     >
-      <Card>
-        <CardContent className="p-0 overflow-hidden">
-          <View className="flex-row items-stretch">
-            {/* Image */}
-            <Image
-              source={{ uri: item.imageUri }}
-              style={{
-                width: 96,
-                height: "100%",
-                borderTopLeftRadius: 8,
-                borderBottomLeftRadius: 8,
-              }}
-              resizeMode="cover"
-            />
+      <TouchableOpacity
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        activeOpacity={0.9}
+      >
+        <Card className="overflow-hidden border-0 shadow-sm">
+          <View className="flex-row items-stretch p-3">
+            {/* Image with rounded corners */}
+            <View className="w-14 h-14 rounded-full overflow-hidden mr-3">
+              <Image
+                source={{ uri: item.imageUri }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                }}
+                resizeMode="cover"
+              />
+            </View>
 
             {/* Content */}
-            <View className="flex-1 p-3 justify-between">
+            <View className="flex-1 justify-center">
               <View>
                 <Text className="font-semibold text-base">{item.name}</Text>
                 <Text
@@ -69,27 +97,24 @@ export default function ItemCard({ item }: ItemCardProps) {
                 >
                   {item.description}
                 </Text>
-                <View className="flex-row items-center mt-1">
-                  <View className="bg-secondary px-2 py-0.5 rounded-full">
-                    <Text className="text-xs">{item.category}</Text>
-                  </View>
-                </View>
-              </View>
-
-              <View className="flex-row items-center mt-2">
-                {daysUntilExpiry < 0 ? (
-                  <AlertCircle size={16} className={getExpiryStatusColor()} />
-                ) : (
-                  <Clock size={16} className={getExpiryStatusColor()} />
-                )}
-                <Text className={`ml-1 text-sm ${getExpiryStatusColor()}`}>
-                  {getExpiryStatusText()}
-                </Text>
               </View>
             </View>
+
+            {/* Right side with expiry info */}
+            <View className="justify-center items-end ml-2">
+              <Text className={`text-xs font-medium ${getExpiryStatusColor()}`}>
+                {daysUntilExpiry < 0
+                  ? "Expired"
+                  : daysUntilExpiry === 0
+                  ? "Today"
+                  : daysUntilExpiry === 1
+                  ? "Tomorrow"
+                  : `${daysUntilExpiry} days`}
+              </Text>
+            </View>
           </View>
-        </CardContent>
-      </Card>
-    </TouchableOpacity>
+        </Card>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
