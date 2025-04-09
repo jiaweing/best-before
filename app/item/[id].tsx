@@ -345,7 +345,7 @@ export default function ItemDetailScreen() {
       </ScrollView>
 
       {/* Action Buttons */}
-      <View className="p-4 flex-row border-t border-border">
+      <View className="p-4 pb-20 flex-row border-t border-border">
         <Button
           variant="outline"
           className="flex-1 mr-2 flex-row items-center"
