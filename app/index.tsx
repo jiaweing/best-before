@@ -22,7 +22,6 @@ import { ChevronDown } from "~/lib/icons/ChevronDown";
 import { ChevronUp } from "~/lib/icons/ChevronUp";
 import { Plus } from "~/lib/icons/Plus";
 import { Search } from "~/lib/icons/Search";
-import { useColorScheme } from "~/lib/useColorScheme";
 import { getApiKey } from "~/services/storage";
 import { useStore } from "~/store";
 
@@ -32,7 +31,6 @@ export default function HomeScreen() {
   const geminiConfig = useStore((state) => state.geminiConfig);
   const [isLoading, setIsLoading] = useState(true);
   const [hasApiKey, setHasApiKey] = useState(false);
-  const { isDarkColorScheme } = useColorScheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -126,9 +124,10 @@ export default function HomeScreen() {
     router.push("/basic-camera");
   };
 
-  const handleOpenSettings = () => {
-    router.push("/settings");
-  };
+  // Function to navigate to settings if needed
+  // const handleOpenSettings = () => {
+  //   router.push("/settings");
+  // };
 
   if (isLoading) {
     return (
