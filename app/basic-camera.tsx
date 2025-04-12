@@ -449,8 +449,12 @@ export default function BasicCameraScreen() {
             </View>
           ) : (
             <View className="items-center">
-              <View className="w-64 aspect-[9/16] bg-muted rounded-lg mb-4 justify-center items-center">
-                <Camera size={48} className="text-muted-foreground" />
+              <View className="w-64 aspect-[9/16] rounded-lg mb-4 justify-center items-center overflow-hidden">
+                <Image
+                  source={require("../assets/images/take-photo.png")}
+                  className="w-full h-full"
+                  resizeMode="contain"
+                />
               </View>
               <Text className="text-center mb-4">
                 Take a photo of the product to identify it
@@ -509,8 +513,12 @@ export default function BasicCameraScreen() {
             </View>
           ) : (
             <View className="items-center">
-              <View className="w-64 aspect-[9/16] bg-muted rounded-lg mb-4 justify-center items-center">
-                <Calendar size={48} className="text-muted-foreground" />
+              <View className="w-64 aspect-[9/16] rounded-lg mb-4 justify-center items-center overflow-hidden">
+                <Image
+                  source={require("../assets/images/expiry-date.png")}
+                  className="w-full h-full"
+                  resizeMode="contain"
+                />
               </View>
               <Text className="text-center mb-4">
                 Take a photo of the expiry date

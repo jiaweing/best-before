@@ -5,7 +5,7 @@ import {
 } from "expo-camera";
 import { RotateCcw, X } from "lucide-react-native";
 import React, { useRef, useState } from "react";
-import { ActivityIndicator, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, TouchableOpacity, View } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
 import { PhotoType } from "~/types";
@@ -111,16 +111,26 @@ export default function CameraView({
             </TouchableOpacity>
           </View>
 
-          {/* Instructions */}
+          {/* Instructions with placeholder images */}
           <View className="flex-1 justify-center items-center">
             {photoType === "product" ? (
-              <View className="bg-black/50 p-4 rounded-lg m-4">
+              <View className="p-4 rounded-lg m-4 items-center">
+                <Image
+                  source={require("../assets/images/take-photo.png")}
+                  className="w-64 h-64 mb-4"
+                  resizeMode="contain"
+                />
                 <Text className="text-white text-center">
                   Take a clear photo of the product
                 </Text>
               </View>
             ) : (
-              <View className="bg-black/50 p-4 rounded-lg m-4">
+              <View className="p-4 rounded-lg m-4 items-center">
+                <Image
+                  source={require("../assets/images/expiry-date.png")}
+                  className="w-64 h-64 mb-4"
+                  resizeMode="contain"
+                />
                 <Text className="text-white text-center">
                   Take a clear photo of the expiry date
                 </Text>
