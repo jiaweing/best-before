@@ -89,22 +89,24 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
       <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-      <View className="flex-1">
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="settings" />
-          <Stack.Screen name="add-item" options={{ title: "Add Item" }} />
-          <Stack.Screen name="simple-add" options={{ title: "Simple Add" }} />
-          <Stack.Screen name="camera-add" options={{ title: "Camera Add" }} />
-          <Stack.Screen
-            name="basic-camera"
-            options={{ title: "Basic Camera" }}
-          />
-          <Stack.Screen name="item" options={{ title: "Items" }} />
-        </Stack>
-        {showBottomNav && <BottomNavBar currentRoute={pathname} />}
-        <PortalHost />
-        <NotificationInitializer />
+      <View className={`flex-1 ${isDarkColorScheme ? "dark" : ""}`}>
+        <View className="flex-1 bg-background">
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="settings" />
+            <Stack.Screen name="add-item" options={{ title: "Add Item" }} />
+            <Stack.Screen name="simple-add" options={{ title: "Simple Add" }} />
+            <Stack.Screen name="camera-add" options={{ title: "Camera Add" }} />
+            <Stack.Screen
+              name="basic-camera"
+              options={{ title: "Basic Camera" }}
+            />
+            <Stack.Screen name="item" options={{ title: "Items" }} />
+          </Stack>
+          {showBottomNav && <BottomNavBar currentRoute={pathname} />}
+          <PortalHost />
+          <NotificationInitializer />
+        </View>
       </View>
     </ThemeProvider>
   );
