@@ -1,6 +1,10 @@
-import { Camera } from "expo-camera";
+import {
+  CameraType,
+  CameraView as ExpoCameraView,
+  useCameraPermissions,
+} from "expo-camera";
 import { RotateCcw, X } from "lucide-react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { Button } from "~/components/ui/button";
 import { Text } from "~/components/ui/text";
@@ -17,17 +21,10 @@ export default function CameraView({
   onCancel,
   photoType,
 }: CameraViewProps) {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [cameraType, setCameraType] = useState(CameraType.back);
+  const [cameraType, setCameraType] = useState<CameraType>("back");
   const [isCapturing, setIsCapturing] = useState(false);
-  const cameraRef = useRef<Camera>(null);
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
-    })();
-  }, []);
+  const cameraRef = useRef<ExpoCameraView>(null);
+  const [permission, requestPermission] = useCameraPermissions();
 
   const handleCapture = async () => {
     if (cameraRef.current && !isCapturing) {
@@ -38,7 +35,9 @@ export default function CameraView({
           base64: false,
           exif: false,
         });
-        onCapture(photo.uri);
+        if (photo) {
+          onCapture(photo.uri);
+        }
       } catch (error) {
         console.error("Error taking picture:", error);
       } finally {
@@ -48,12 +47,11 @@ export default function CameraView({
   };
 
   const toggleCameraType = () => {
-    setCameraType((current) =>
-      current === CameraType.back ? CameraType.front : CameraType.back
-    );
+    setCameraType((current) => (current === "back" ? "front" : "back"));
   };
 
-  if (hasPermission === null) {
+  if (!permission) {
+    // Camera permissions are still loading
     return (
       <View className="flex-1 justify-center items-center bg-background">
         <ActivityIndicator size="large" color="#0000ff" />
@@ -61,14 +59,18 @@ export default function CameraView({
     );
   }
 
-  if (hasPermission === false) {
+  if (!permission.granted) {
+    // Camera permissions are not granted yet
     return (
       <View className="flex-1 justify-center items-center p-4 bg-background">
         <Text className="text-center mb-4">
           We need camera access to take pictures of your products and expiry
           dates.
         </Text>
-        <Button onPress={onCancel}>
+        <Button onPress={requestPermission}>
+          <Text>Grant Permission</Text>
+        </Button>
+        <Button onPress={onCancel} className="mt-2">
           <Text>Go Back</Text>
         </Button>
       </View>
@@ -77,7 +79,12 @@ export default function CameraView({
 
   return (
     <View className="flex-1 bg-black">
-      <Camera ref={cameraRef} type={cameraType} className="flex-1" ratio="9:16">
+      <ExpoCameraView
+        ref={cameraRef}
+        facing={cameraType}
+        className="flex-1"
+        style={{ flex: 1 }}
+      >
         <View className="flex-1 bg-transparent">
           {/* Header */}
           <View className="flex-row justify-between items-center p-4">
@@ -126,17 +133,17 @@ export default function CameraView({
             <TouchableOpacity
               onPress={handleCapture}
               disabled={isCapturing}
-              className="w-20 h-20 rounded-full border-4 border-white bg-white/20 justify-center items-center"
+              className="w-20 h-20 rounded-full border-4 border-white bg-background/20 justify-center items-center"
             >
               {isCapturing ? (
                 <ActivityIndicator size="large" color="white" />
               ) : (
-                <View className="w-16 h-16 rounded-full bg-white" />
+                <View className="w-16 h-16 rounded-full bg-background" />
               )}
             </TouchableOpacity>
           </View>
         </View>
-      </Camera>
+      </ExpoCameraView>
     </View>
   );
 }

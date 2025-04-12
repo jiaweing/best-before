@@ -351,12 +351,12 @@ export default function CameraAddScreen() {
               <TouchableOpacity
                 onPress={handleCapture}
                 disabled={isCapturing}
-                className="w-20 h-20 rounded-full border-4 border-white bg-white/20 justify-center items-center"
+                className="w-20 h-20 rounded-full border-4 border-white bg-background/20 justify-center items-center"
               >
                 {isCapturing ? (
                   <ActivityIndicator size="large" color="white" />
                 ) : (
-                  <View className="w-16 h-16 rounded-full bg-white" />
+                  <View className="w-16 h-16 rounded-full bg-background" />
                 )}
               </TouchableOpacity>
             </View>
@@ -465,12 +465,12 @@ export default function CameraAddScreen() {
               <TouchableOpacity
                 onPress={handleCapture}
                 disabled={isCapturing}
-                className="w-20 h-20 rounded-full border-4 border-white bg-white/20 justify-center items-center"
+                className="w-20 h-20 rounded-full border-4 border-white bg-background/20 justify-center items-center"
               >
                 {isCapturing ? (
                   <ActivityIndicator size="large" color="white" />
                 ) : (
-                  <View className="w-16 h-16 rounded-full bg-white" />
+                  <View className="w-16 h-16 rounded-full bg-background" />
                 )}
               </TouchableOpacity>
             </View>
