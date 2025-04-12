@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  ScrollView,
   TextInput,
   TouchableOpacity,
   View,
@@ -12,10 +11,16 @@ import {
 import Animated, { FadeIn } from "react-native-reanimated";
 import ItemCard from "~/components/ItemCard";
 import { Button } from "~/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { Text } from "~/components/ui/text";
+import { ChevronDown } from "~/lib/icons/ChevronDown";
+import { ChevronUp } from "~/lib/icons/ChevronUp";
 import { Plus } from "~/lib/icons/Plus";
-import { QrCode } from "~/lib/icons/QrCode";
 import { Search } from "~/lib/icons/Search";
 import { useColorScheme } from "~/lib/useColorScheme";
 import { getApiKey } from "~/services/storage";
@@ -30,6 +35,7 @@ export default function HomeScreen() {
   const { isDarkColorScheme } = useColorScheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   console.log("Home screen - geminiConfig:", geminiConfig ? "exists" : "null");
 
@@ -134,9 +140,65 @@ export default function HomeScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      {/* Header */}
+      {/* WhatsApp-style header with dropdown for categories */}
       <View className="pt-12 pb-4 px-6">
-        <Text className="text-2xl font-bold">Before</Text>
+        {items.length > 0 ? (
+          <DropdownMenu onOpenChange={setIsDropdownOpen}>
+            <DropdownMenuTrigger className="flex flex-row items-center py-1">
+              <View className="flex-row items-center">
+                <Text className="text-2xl font-bold">{selectedCategory}</Text>
+                {/* Toggle between ChevronDown and ChevronUp based on open state */}
+                <View className="ml-2">
+                  {isDropdownOpen ? (
+                    <ChevronUp
+                      size={22}
+                      className="text-foreground opacity-80"
+                    />
+                  ) : (
+                    <ChevronDown
+                      size={22}
+                      className="text-foreground opacity-80"
+                    />
+                  )}
+                </View>
+              </View>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 mt-2 mx-4 bg-background border border-border rounded-lg shadow-lg overflow-hidden p-0">
+              <DropdownMenuItem
+                key="all-category"
+                onPress={() => {
+                  setSelectedCategory("All");
+                  setIsDropdownOpen(false);
+                }}
+                className={`py-3 px-4 ${
+                  selectedCategory === "All" ? "bg-accent/30" : ""
+                }`}
+              >
+                <Text className="font-medium text-base text-foreground">
+                  All
+                </Text>
+              </DropdownMenuItem>
+              {categories.map((category) => (
+                <DropdownMenuItem
+                  key={category}
+                  onPress={() => {
+                    setSelectedCategory(category);
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`py-3 px-4 ${
+                    selectedCategory === category ? "bg-accent/30" : ""
+                  }`}
+                >
+                  <Text className="font-medium text-base text-foreground">
+                    {category}
+                  </Text>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Text className="text-2xl font-bold">Before</Text>
+        )}
       </View>
 
       {/* Search bar */}
@@ -150,35 +212,8 @@ export default function HomeScreen() {
             className="flex-1 text-foreground"
             placeholderTextColor="#9ca3af"
           />
-          <TouchableOpacity>
-            <QrCode size={20} className="text-muted-foreground ml-2" />
-          </TouchableOpacity>
         </View>
       </View>
-
-      {/* Category tabs - only show if there are items */}
-      {items.length > 0 && categories.length > 0 && (
-        <View className="px-6 mb-4">
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <TabsList className="flex-row w-auto">
-                <TabsTrigger value="All" className="mr-2 px-4 py-2">
-                  <Text className="font-medium">All</Text>
-                </TabsTrigger>
-                {categories.map((category) => (
-                  <TabsTrigger
-                    key={category}
-                    value={category}
-                    className="mr-2 px-4 py-2"
-                  >
-                    <Text className="font-medium">{category}</Text>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </ScrollView>
-          </Tabs>
-        </View>
-      )}
 
       {/* Content */}
       <View className="flex-1 px-6">
